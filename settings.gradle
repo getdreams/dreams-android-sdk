@@ -1,0 +1,3 @@
+include ':example-app'
+include ':sdk'
+rootProject.name = "Dreams SDK"
