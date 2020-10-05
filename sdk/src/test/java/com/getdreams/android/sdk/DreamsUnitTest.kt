@@ -8,6 +8,9 @@ package com.getdreams.android.sdk
 
 import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.getdreams.android.sdk.connections.ResponseListener
+import com.getdreams.android.sdk.events.Event
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -54,5 +57,48 @@ class DreamsUnitTest {
     fun getClientIdThrowsBeforeInitialize() {
         assertFalse(Dreams.initialized)
         Dreams.instance.clientId
+    }
+
+    @Test
+    fun canRegisterResponseListener() {
+        Dreams.setup("clientId", "endpoint")
+        val listener = object : ResponseListener {
+            override fun onResponse(type: Event.Response, data: JSONObject?) {
+                TODO("Not yet implemented")
+            }
+        }
+        assertTrue(Dreams.instance.registerResponseListener(listener))
+    }
+
+    @Test
+    fun canRemoveResponseListener() {
+        Dreams.setup("clientId", "endpoint")
+        val listener = object : ResponseListener {
+            override fun onResponse(type: Event.Response, data: JSONObject?) {
+                TODO("Not yet implemented")
+            }
+        }
+        Dreams.instance.registerResponseListener(listener)
+        assertTrue(Dreams.instance.removeResponseListener(listener))
+    }
+
+    @Test
+    fun canClearResponseListeners() {
+        Dreams.setup("clientId", "endpoint")
+        val listener = object : ResponseListener {
+            override fun onResponse(type: Event.Response, data: JSONObject?) {
+                TODO("Not yet implemented")
+            }
+        }
+        val listener2 = object : ResponseListener {
+            override fun onResponse(type: Event.Response, data: JSONObject?) {
+                TODO("Not yet implemented")
+            }
+        }
+        Dreams.instance.registerResponseListener(listener)
+        Dreams.instance.registerResponseListener(listener2)
+        Dreams.instance.clearResponseListeners()
+        assertFalse(Dreams.instance.removeResponseListener(listener))
+        assertFalse(Dreams.instance.removeResponseListener(listener2))
     }
 }
