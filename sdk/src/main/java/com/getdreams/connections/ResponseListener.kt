@@ -4,9 +4,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.getdreams.android.sdk.connections
+package com.getdreams.connections
 
-import com.getdreams.android.sdk.events.Event
+import com.getdreams.events.Event
 import org.json.JSONObject
 
 /**

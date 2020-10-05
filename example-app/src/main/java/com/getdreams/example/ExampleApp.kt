@@ -7,7 +7,7 @@
 package com.getdreams.example
 
 import android.app.Application
-import com.getdreams.android.sdk.Dreams
+import com.getdreams.Dreams
 
 @Suppress("unused")
 class ExampleApp : Application() {

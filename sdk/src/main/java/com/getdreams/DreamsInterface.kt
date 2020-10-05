@@ -4,9 +4,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.getdreams.android.sdk
+package com.getdreams
 
-import com.getdreams.android.sdk.connections.ResponseListener
+import com.getdreams.connections.ResponseListener
 
 /**
  * The main interface to Dreams.

@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.getdreams.android.sdk.views
+package com.getdreams.views
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -15,11 +15,11 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
-import com.getdreams.android.sdk.Dreams
-import com.getdreams.android.sdk.Location
-import com.getdreams.android.sdk.connections.webview.ResponseInterface
-import com.getdreams.android.sdk.events.Event
-import com.getdreams.android.sdk.posix
+import com.getdreams.Dreams
+import com.getdreams.Location
+import com.getdreams.connections.webview.ResponseInterface
+import com.getdreams.events.Event
+import com.getdreams.posix
 import org.json.JSONObject
 import java.io.File
 import java.util.Locale

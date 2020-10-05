@@ -5,7 +5,7 @@
  */
 
 @file:JvmName("DreamsUtils")
-package com.getdreams.android.sdk
+package com.getdreams
 
 import java.util.Locale
 

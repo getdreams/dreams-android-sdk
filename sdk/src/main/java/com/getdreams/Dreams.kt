@@ -4,11 +4,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.getdreams.android.sdk
+package com.getdreams
 
 import android.net.Uri
-import com.getdreams.android.sdk.connections.ResponseListener
-import com.getdreams.android.sdk.events.Event
+import com.getdreams.connections.ResponseListener
+import com.getdreams.events.Event
 import org.json.JSONObject
 import java.util.concurrent.CopyOnWriteArrayList
 

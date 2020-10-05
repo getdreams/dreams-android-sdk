@@ -4,21 +4,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.getdreams.android.sdk
+package com.getdreams
 
 import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.getdreams.android.sdk.connections.ResponseListener
-import com.getdreams.android.sdk.events.Event
+import com.getdreams.Dreams
+import com.getdreams.connections.ResponseListener
+import com.getdreams.events.Event
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.Locale
 
 @RunWith(AndroidJUnit4::class)
 class DreamsUnitTest {

@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.getdreams.android.sdk
+package com.getdreams
 
 enum class Location(val value: String) {
     /**

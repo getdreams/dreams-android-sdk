@@ -26,7 +26,7 @@ class ExampleApp : Application() {
 To show Dreams simply add `DreamsView` to a layout, and then call `DreamsView.open()`.
 
 ```xml
-<com.getdreams.android.sdk.views.DreamsView
+<com.getdreams.views.DreamsView
     android:id="@+id/dreams"
     android:layout_width="match_parent"
     android:layout_height="match_parent" />

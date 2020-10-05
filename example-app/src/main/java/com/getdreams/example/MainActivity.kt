@@ -8,7 +8,7 @@ package com.getdreams.example
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.getdreams.android.sdk.views.DreamsView
+import com.getdreams.views.DreamsView
 
 class MainActivity : AppCompatActivity() {
     private val dreamsView: DreamsView by lazy { findViewById(R.id.dreams) }
