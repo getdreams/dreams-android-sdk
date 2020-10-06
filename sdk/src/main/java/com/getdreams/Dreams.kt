@@ -15,13 +15,13 @@ import java.util.concurrent.CopyOnWriteArrayList
 class Dreams internal constructor(
     internal val clientId: String,
     baseUrl: String
-) : DreamsInterface {
+) {
     companion object Singleton {
         @Volatile
         internal var _instance: Dreams? = null
 
         /**
-         * Initialize the Dreams SDK. This must be called before calling [com.getdreams.android.sdk.views.DreamsView].
+         * Initialize the Dreams SDK. This must be called before calling [com.getdreams.views.DreamsView].
          *
          * @param clientId The client id.
          * @param baseUrl The endpoint that the sdk should use.
@@ -91,22 +91,4 @@ class Dreams internal constructor(
      * The base [Uri] to load.
      */
     internal val baseUri: Uri = Uri.parse(baseUrl)
-
-    private val responseListeners = CopyOnWriteArrayList<ResponseListener>()
-
-    override fun registerResponseListener(listener: ResponseListener): Boolean {
-        return responseListeners.add(listener)
-    }
-
-    override fun removeResponseListener(listener: ResponseListener): Boolean {
-        return responseListeners.remove(listener)
-    }
-
-    override fun clearResponseListeners() {
-        responseListeners.clear()
-    }
-
-    internal fun onResponse(type: Event.Response, data: JSONObject?) {
-        responseListeners.forEach { it.onResponse(type, data) }
-    }
 }

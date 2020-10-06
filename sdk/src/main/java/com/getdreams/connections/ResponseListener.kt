@@ -12,7 +12,7 @@ import org.json.JSONObject
 /**
  * Listener for response events from Dreams.
  */
-interface ResponseListener {
+fun interface ResponseListener {
     /**
      * Triggered when a [Event.Response] is sent from PWA.
      *

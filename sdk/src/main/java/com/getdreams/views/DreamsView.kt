@@ -17,50 +17,19 @@ import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import com.getdreams.Dreams
 import com.getdreams.Location
+import com.getdreams.connections.ResponseListener
 import com.getdreams.connections.webview.ResponseInterface
 import com.getdreams.events.Event
 import com.getdreams.posix
 import org.json.JSONObject
 import java.io.File
 import java.util.Locale
-
-/**
- * Interface for [DreamsView].
- */
-interface DreamsViewI {
-    /**
-     * Open Dreams at [location].
-     *
-     * @param accessToken The token used to authenticate.
-     * @param location What screen to open, by default [Location.Home].
-     */
-    fun open(accessToken: String, location: Location = Location.Home, locale: Locale? = null)
-
-    /**
-     * Set the locale used in Dreams.
-     */
-    fun updateLocale(locale: Locale)
-
-    /**
-     * Update the access token.
-     */
-    fun updateAccessToken(accessToken: String)
-
-    /**
-     * Returns true if the dreams view can navigate back.
-     */
-    fun canGoBack(): Boolean
-
-    /**
-     * Navigates back in the dreams view.
-     */
-    fun goBack()
-}
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * The main view to present Dreams to users.
  */
-class DreamsView : FrameLayout, DreamsViewI {
+class DreamsView : FrameLayout, DreamsViewInterface {
     @JvmOverloads
     constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : super(
         context,
@@ -81,6 +50,7 @@ class DreamsView : FrameLayout, DreamsViewI {
 
     private val webView: WebView
     private var sessionId: String = ""
+    private val responseListeners = CopyOnWriteArrayList<ResponseListener>()
 
     /**
      * Add and setup the web view.
@@ -136,17 +106,17 @@ class DreamsView : FrameLayout, DreamsViewI {
                 }
                 this@DreamsView.sessionId = sessionId
                 this@DreamsView.initialize(Dreams.instance.clientId, accessToken, posixLocale)
-                Dreams.instance.onResponse(Event.Response.Initialized, null)
+                this@DreamsView.onResponse(Event.Response.Initialized, null)
             }
 
             @JavascriptInterface
             override fun onAccessTokenDidExpire() {
-                Dreams.instance.onResponse(Event.Response.AccessTokenExpired, null)
+                this@DreamsView.onResponse(Event.Response.AccessTokenExpired, null)
             }
 
             @JavascriptInterface
             override fun onOffboardingDidComplete() {
-                Dreams.instance.onResponse(Event.Response.OffboardingCompleted, null)
+                this@DreamsView.onResponse(Event.Response.OffboardingCompleted, null)
             }
         }, "Native")
 
@@ -191,6 +161,22 @@ class DreamsView : FrameLayout, DreamsViewI {
         webView.evaluateJavascript("updateAccessToken(${jsonData})") {
             Log.v("Dreams", "updateAccessToken returned $it")
         }
+    }
+
+    override fun registerResponseListener(listener: ResponseListener): Boolean {
+        return responseListeners.add(listener)
+    }
+
+    override fun removeResponseListener(listener: ResponseListener): Boolean {
+        return responseListeners.remove(listener)
+    }
+
+    override fun clearResponseListeners() {
+        responseListeners.clear()
+    }
+
+    internal fun onResponse(type: Event.Response, data: JSONObject?) {
+        responseListeners.forEach { it.onResponse(type, data) }
     }
 
     override fun canGoBack(): Boolean {
