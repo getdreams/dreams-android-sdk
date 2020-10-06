@@ -62,6 +62,8 @@ class DreamsView : FrameLayout, DreamsViewInterface {
                 @SuppressLint("SetJavaScriptEnabled")
                 javaScriptEnabled = true
                 domStorageEnabled = true
+                // Fix for CVE-2020-16873
+                setSupportMultipleWindows(true)
 
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
                     val cache = File(context.cacheDir, "dreams")
