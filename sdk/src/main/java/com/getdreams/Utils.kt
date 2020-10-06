@@ -5,6 +5,7 @@
  */
 
 @file:JvmName("DreamsUtils")
+
 package com.getdreams
 
 import java.util.Locale
@@ -16,9 +17,15 @@ import java.util.Locale
  */
 val Locale.posix: String
     get() {
-        return if (country.isEmpty()) {
-            language
-        } else {
-            "${language}_$country"
+        return when {
+            country.isEmpty() -> {
+                language
+            }
+            variant.isNotEmpty() -> {
+                "${language}_$country@$variant"
+            }
+            else -> {
+                "${language}_${country}"
+            }
         }
     }
