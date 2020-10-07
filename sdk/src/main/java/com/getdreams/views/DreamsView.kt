@@ -40,7 +40,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         init()
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    @Suppress("unused")
     constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0, defStyleRes: Int = 0
     ) : super(context, attrs, defStyleAttr, defStyleRes) {
