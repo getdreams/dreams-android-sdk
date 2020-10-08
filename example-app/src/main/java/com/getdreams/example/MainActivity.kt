@@ -8,23 +8,25 @@ package com.getdreams.example
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.getdreams.connections.ResponseListener
+import com.getdreams.connections.EventListener
 import com.getdreams.events.Event
+import com.getdreams.events.ResponseType
 import com.getdreams.views.DreamsView
 
 class MainActivity : AppCompatActivity() {
     private val dreamsView: DreamsView by lazy { findViewById(R.id.dreams) }
 
-    private val listener = ResponseListener { type, _ ->
-        when (type) {
-            Event.Response.Initialized -> {
-                // no-op
-            }
-            Event.Response.AccessTokenExpired -> {
-                dreamsView.updateAccessToken("new_token")
-            }
-            Event.Response.OffboardingCompleted -> {
-                this@MainActivity.finish()
+    private val listener = EventListener { event, _ ->
+        when (event) {
+            is Event.Response -> {
+                when (event.type) {
+                    ResponseType.AccessTokenExpired -> {
+                        dreamsView.updateAccessToken("new_token")
+                    }
+                    ResponseType.OffboardingCompleted -> {
+                        this@MainActivity.finish()
+                    }
+                }
             }
         }
     }
@@ -33,11 +35,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         dreamsView.open("token")
-        dreamsView.registerResponseListener(listener)
+        dreamsView.registerEventListener(listener)
     }
 
     override fun onDestroy() {
-        dreamsView.removeResponseListener(listener)
+        dreamsView.removeEventListener(listener)
         super.onDestroy()
     }
 

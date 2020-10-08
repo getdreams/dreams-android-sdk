@@ -12,12 +12,12 @@ import org.json.JSONObject
 /**
  * Listener for response events from Dreams.
  */
-fun interface ResponseListener {
+fun interface EventListener {
     /**
-     * Triggered when a [Event.Response] is sent from PWA.
+     * Triggered when a [Event] is sent from PWA.
      *
      * @param type The type of response.
      * @param data The data of the response.
      */
-    fun onResponse(type: Event.Response, data: JSONObject?)
+    fun onEvent(type: Event, data: JSONObject?)
 }

@@ -11,7 +11,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.getdreams.Dreams
-import com.getdreams.connections.ResponseListener
+import com.getdreams.connections.EventListener
 import org.junit.Test
 import org.junit.Assert.*
 import org.junit.Before
@@ -30,27 +30,27 @@ class DreamsViewUnitTest {
     @Test
     fun canRegisterResponseListener() {
         val dreamsView = DreamsView(context)
-        val listener = ResponseListener { _, _ -> TODO("Not yet implemented") }
-        assertTrue(dreamsView.registerResponseListener(listener))
+        val listener = EventListener { _, _ -> TODO("Not yet implemented") }
+        assertTrue(dreamsView.registerEventListener(listener))
     }
 
     @Test
     fun canRemoveResponseListener() {
         val dreamsView = DreamsView(context)
-        val listener = ResponseListener { _, _ -> TODO("Not yet implemented") }
-        dreamsView.registerResponseListener(listener)
-        assertTrue(dreamsView.removeResponseListener(listener))
+        val listener = EventListener { _, _ -> TODO("Not yet implemented") }
+        dreamsView.registerEventListener(listener)
+        assertTrue(dreamsView.removeEventListener(listener))
     }
 
     @Test
     fun canClearResponseListeners() {
         val dreamsView = DreamsView(context)
-        val listener = ResponseListener { _, _ -> TODO("Not yet implemented") }
-        val listener2 = ResponseListener { _, _ -> TODO("Not yet implemented") }
-        dreamsView.registerResponseListener(listener)
-        dreamsView.registerResponseListener(listener2)
-        dreamsView.clearResponseListeners()
-        assertFalse(dreamsView.removeResponseListener(listener))
-        assertFalse(dreamsView.removeResponseListener(listener2))
+        val listener = EventListener { _, _ -> TODO("Not yet implemented") }
+        val listener2 = EventListener { _, _ -> TODO("Not yet implemented") }
+        dreamsView.registerEventListener(listener)
+        dreamsView.registerEventListener(listener2)
+        dreamsView.clearEventListeners()
+        assertFalse(dreamsView.removeEventListener(listener))
+        assertFalse(dreamsView.removeEventListener(listener2))
     }
 }

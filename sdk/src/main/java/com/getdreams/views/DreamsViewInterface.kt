@@ -7,7 +7,7 @@
 package com.getdreams.views
 
 import com.getdreams.Location
-import com.getdreams.connections.ResponseListener
+import com.getdreams.connections.EventListener
 import java.util.Locale
 
 /**
@@ -34,13 +34,12 @@ interface DreamsViewInterface {
 
     /**
      * Listen to events from Dreams.
-     * Note that listeners are held with a strong reference, so make sure to remove them with [removeResponseListener].
      *
      * @param listener The listener to register.
      *
      * @return If [listener] was registered successfully.
      */
-    fun registerResponseListener(listener: ResponseListener): Boolean
+    fun registerEventListener(listener: EventListener): Boolean
 
     /**
      * Remove a registered listener.
@@ -49,12 +48,12 @@ interface DreamsViewInterface {
      *
      * @return If the [listener] was removed.
      */
-    fun removeResponseListener(listener: ResponseListener): Boolean
+    fun removeEventListener(listener: EventListener): Boolean
 
     /**
      * Remove all event listeners.
      */
-    fun clearResponseListeners()
+    fun clearEventListeners()
 
     /**
      * Returns true if the dreams view can navigate back.

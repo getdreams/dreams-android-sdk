@@ -14,17 +14,17 @@ import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.widget.FrameLayout
-import androidx.annotation.RequiresApi
 import com.getdreams.Dreams
 import com.getdreams.Location
-import com.getdreams.connections.ResponseListener
+import com.getdreams.connections.EventListener
 import com.getdreams.connections.webview.ResponseInterface
-import com.getdreams.events.Event
 import com.getdreams.posix
 import org.json.JSONObject
 import java.io.File
 import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
+import com.getdreams.events.Event.Response
+import com.getdreams.events.ResponseType
 
 /**
  * The main view to present Dreams to users.
@@ -49,8 +49,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
     }
 
     private val webView: WebView
-    private var sessionId: String = ""
-    private val responseListeners = CopyOnWriteArrayList<ResponseListener>()
+    private val responseListeners = CopyOnWriteArrayList<EventListener>()
 
     /**
      * Add and setup the web view.
@@ -101,24 +100,13 @@ class DreamsView : FrameLayout, DreamsViewInterface {
 
         webView.addJavascriptInterface(object : ResponseInterface {
             @JavascriptInterface
-            override fun initialized(sessionId: String?) {
-                if (sessionId.isNullOrEmpty()) {
-                    Log.w("Dreams", "Initialized without sessionId")
-                    return
-                }
-                this@DreamsView.sessionId = sessionId
-                this@DreamsView.initialize(Dreams.instance.clientId, accessToken, posixLocale)
-                this@DreamsView.onResponse(Event.Response.Initialized, null)
-            }
-
-            @JavascriptInterface
             override fun onAccessTokenDidExpire() {
-                this@DreamsView.onResponse(Event.Response.AccessTokenExpired, null)
+                this@DreamsView.onResponse(Response(ResponseType.AccessTokenExpired), null)
             }
 
             @JavascriptInterface
             override fun onOffboardingDidComplete() {
-                this@DreamsView.onResponse(Event.Response.OffboardingCompleted, null)
+                this@DreamsView.onResponse(Response(ResponseType.OffboardingCompleted), null)
             }
         }, "Native")
 
@@ -133,12 +121,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
      * @param locale Posix formatted locale to use.
      */
     private fun initialize(clientId: String, accessToken: String, locale: String) {
-        if (sessionId.isEmpty()) {
-            Log.v("Dreams", "No valid session id")
-            return
-        }
         val jsonData: JSONObject = JSONObject()
-            .put("sessionId", sessionId)
             .put("clientId", clientId)
             .put("accessToken", accessToken)
             .put("locale", locale)
@@ -149,7 +132,6 @@ class DreamsView : FrameLayout, DreamsViewInterface {
 
     override fun updateLocale(locale: Locale) {
         val jsonData: JSONObject = JSONObject()
-            .put("sessionId", sessionId)
             .put("locale", locale.posix)
         webView.evaluateJavascript("updateLocale(${jsonData})") {
             Log.v("Dreams", "updateLocale returned $it")
@@ -158,27 +140,26 @@ class DreamsView : FrameLayout, DreamsViewInterface {
 
     override fun updateAccessToken(accessToken: String) {
         val jsonData: JSONObject = JSONObject()
-            .put("sessionId", sessionId)
             .put("accessToken", accessToken)
         webView.evaluateJavascript("updateAccessToken(${jsonData})") {
             Log.v("Dreams", "updateAccessToken returned $it")
         }
     }
 
-    override fun registerResponseListener(listener: ResponseListener): Boolean {
+    override fun registerEventListener(listener: EventListener): Boolean {
         return responseListeners.add(listener)
     }
 
-    override fun removeResponseListener(listener: ResponseListener): Boolean {
+    override fun removeEventListener(listener: EventListener): Boolean {
         return responseListeners.remove(listener)
     }
 
-    override fun clearResponseListeners() {
+    override fun clearEventListeners() {
         responseListeners.clear()
     }
 
-    internal fun onResponse(type: Event.Response, data: JSONObject?) {
-        responseListeners.forEach { it.onResponse(type, data) }
+    internal fun onResponse(type: Response, data: JSONObject?) {
+        responseListeners.forEach { it.onEvent(type, data) }
     }
 
     override fun canGoBack(): Boolean {

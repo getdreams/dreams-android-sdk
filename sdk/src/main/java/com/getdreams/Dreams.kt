@@ -7,15 +7,17 @@
 package com.getdreams
 
 import android.net.Uri
-import com.getdreams.connections.ResponseListener
-import com.getdreams.events.Event
-import org.json.JSONObject
-import java.util.concurrent.CopyOnWriteArrayList
 
+/**
+ * Dreams instance.
+ */
 class Dreams internal constructor(
     internal val clientId: String,
     baseUrl: String
 ) {
+    /**
+     * Dreams singleton object.
+     */
     companion object Singleton {
         @Volatile
         internal var _instance: Dreams? = null

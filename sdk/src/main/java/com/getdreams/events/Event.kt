@@ -7,16 +7,18 @@
 package com.getdreams.events
 
 @Suppress("unused")
-class Event {
-    enum class Request {
-        Setup,
-        SetAccessToken,
-        SetLocale,
-    }
+enum class RequestType {
+    UpdateAccessToken,
+    UpdateLocale,
+}
 
-    enum class Response {
-        Initialized,
-        AccessTokenExpired,
-        OffboardingCompleted,
-    }
+@Suppress("unused")
+enum class ResponseType {
+    AccessTokenExpired,
+    OffboardingCompleted,
+}
+
+sealed class Event {
+    data class Request(val type: RequestType): Event()
+    data class Response(val type: ResponseType): Event()
 }
