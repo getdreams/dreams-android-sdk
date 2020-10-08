@@ -33,7 +33,8 @@ To show Dreams simply add `DreamsView` to a layout, and then call `DreamsView.op
 ```
 
 ```kotlin
-findViewById<DreamsView>(R.id.dreams).open(accessToken = "user token", location = Location.Home, locale = null)
+val dreamsView: DreamsView = findViewById<DreamsView>(R.id.dreams)
+dreamsView.open(accessToken = "user token", location = Location.Home, locale = null)
 ```
 
 ## Documentation
@@ -46,8 +47,16 @@ You can generate documentation by running the relevant Dokka task.
 
 ## Testing
 
+### Unit tests
+
 ```shell script
 ./gradlew sdk:test
+```
+
+### Device tests
+
+```shell script
+./gradlew sdk:connectedCheck
 ```
 
 ## Development
