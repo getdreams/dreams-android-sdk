@@ -8,6 +8,7 @@ package com.getdreams.views
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.net.Uri
 import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
@@ -19,12 +20,23 @@ import com.getdreams.Location
 import com.getdreams.connections.EventListener
 import com.getdreams.connections.webview.ResponseInterface
 import com.getdreams.posix
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.File
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
+import com.getdreams.Result
 import com.getdreams.events.Event.Response
 import com.getdreams.events.ResponseType
+import java.net.HttpURLConnection.HTTP_MOVED_PERM
+import java.net.HttpURLConnection.HTTP_MOVED_TEMP
+import java.net.HttpURLConnection.HTTP_OK
+import java.net.HttpURLConnection.HTTP_SEE_OTHER
 
 /**
  * The main view to present Dreams to users.
@@ -85,6 +97,67 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }
     }
 
+    /**
+     * The response from the init call.
+     */
+    internal data class InitResponse(val url: String)
+
+    /**
+     * Make the initial request to the PWA.
+     */
+    private fun makeInitRequest(
+        uri: Uri,
+        jsonBody: JSONObject
+    ): Result<InitResponse> {
+        val url = URL(uri.toString())
+        try {
+            (url.openConnection() as? HttpURLConnection)?.run {
+                requestMethod = "POST"
+                setRequestProperty("Content-Type", "application/json; utf-8")
+                setRequestProperty("Accept", "application/json")
+                doOutput = true
+                doInput = false
+                instanceFollowRedirects = false
+
+                outputStream.write(jsonBody.toString().toByteArray())
+                Log.v("Dreams", "Got code: $responseCode")
+
+                return when (responseCode) {
+                    HTTP_MOVED_PERM, HTTP_MOVED_TEMP, HTTP_SEE_OTHER -> {
+                        getHeaderField("Location")?.let {
+                            Result.Success(InitResponse(it))
+                        } ?: Result.Error(Exception("No location header"))
+                    }
+                    HTTP_OK -> Result.Success(InitResponse(getURL().toString()))
+                    else -> Result.Error(Exception("Unexpected response code: $responseCode"))
+                }
+            }
+            return Result.Error(Exception("Cannot open HttpURLConnection"))
+        } catch (e: Exception) {
+            return Result.Error(Exception("Network request failed", e))
+        }
+    }
+
+    private suspend fun getUrl(clientId: String, accessToken: String, posixLocale: String): String? {
+        val jsonBody = JSONObject()
+            .put("clientId", clientId)
+            .put("accessToken", accessToken)
+            .put("locale", posixLocale)
+        val result = withContext(Dispatchers.IO) {
+            makeInitRequest(
+                Dreams.instance.baseUri,
+                jsonBody
+            )
+        }
+        return when (result) {
+            is Result.Success<InitResponse> -> result.data.url
+            is Result.Error -> {
+                Log.e("Dreams", "Unable to initialize PWA", result.exception)
+                null
+            }
+        }
+    }
+
     override fun open(accessToken: String, location: Location, locale: Locale?) {
         val posixLocale = locale?.posix ?: with(resources.configuration) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -94,9 +167,6 @@ class DreamsView : FrameLayout, DreamsViewInterface {
                 this@with.locale ?: Locale.ROOT
             }
         }.posix
-
-        val uriBuilder = Dreams.instance.baseUri.buildUpon()
-            .appendQueryParameter("locale", posixLocale)
 
         webView.addJavascriptInterface(object : ResponseInterface {
             @JavascriptInterface
@@ -110,23 +180,13 @@ class DreamsView : FrameLayout, DreamsViewInterface {
             }
         }, "Native")
 
-        webView.loadUrl(uriBuilder.build().toString())
-    }
-
-    /**
-     * Initialize the PWA with needed data.
-     *
-     * @param clientId The id of the client.
-     * @param accessToken The user token.
-     * @param locale Posix formatted locale to use.
-     */
-    private fun initialize(clientId: String, accessToken: String, locale: String) {
-        val jsonData: JSONObject = JSONObject()
-            .put("clientId", clientId)
-            .put("accessToken", accessToken)
-            .put("locale", locale)
-        webView.evaluateJavascript("initialize(${jsonData})") {
-            Log.v("Dreams", "initialize returned $it")
+        GlobalScope.launch {
+            val url = getUrl(Dreams.instance.clientId, accessToken, posixLocale)
+            withContext(Dispatchers.Main) {
+                if (url != null) {
+                    webView.loadUrl(url)
+                }
+            }
         }
     }
 
