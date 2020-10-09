@@ -2,12 +2,56 @@
 
 ## Installation
 
-Add the library to your gradle dependencies.
+Register the github maven repository by adding it to your project build.gradle.
 
-```gradle
-dependencies {
-    implementation 'com.getdreams:android-sdk:<version>'
+```groovy
+allprojects {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/getdreams/dreams-android-sdk")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
 }
+```
+
+Add the library to your module dependencies.
+
+```groovy
+dependencies {
+    implementation 'com.getdreams:android-sdk:0.1.0'
+}
+```
+
+If you do not want to use the github repository you can download the package and put it in `<module>/libs`.
+Make sure you include AARs from the libs directory:
+
+```groovy
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+}
+```
+
+### Github Authentication
+
+For detailed docs see [this](https://docs.github.com/en/free-pro-team@latest/packages/using-github-packages-with-your-projects-ecosystem/configuring-gradle-for-use-with-github-packages#authenticating-to-github-packages).
+
+You can save the username and token in your system gradle properties located in `$GRADLE_USER_HOME/gradle.properties`.
+
+```properties
+gpr.user=user
+gpr.key=token
+```
+
+Or you can set the environmental variables:
+
+```shell script
+GITHUB_USERNAME="user"
+GITHUB_TOKEN="token"
 ```
 
 ## Usage
@@ -72,3 +116,10 @@ To publish the library to your local maven, simply run:
 ```
 
 This will publish aar, html-doc, javadoc, and sources to the local maven.
+
+To publish to you need to add signing key details when running the publishing task(s).
+
+```properties
+signing.gnupg.keyName=<key>
+signing.gnupg.passphrase=<pass>
+```
