@@ -7,17 +7,15 @@
 package com.getdreams.connections
 
 import com.getdreams.events.Event
-import org.json.JSONObject
 
 /**
- * Listener for response events from Dreams.
+ * Listener for events from Dreams.
  */
 fun interface EventListener {
     /**
      * Triggered when a [Event] is sent from PWA.
      *
-     * @param type The type of response.
-     * @param data The data of the response.
+     * @param event The event that was sent.
      */
-    fun onEvent(type: Event, data: JSONObject?)
+    fun onEvent(event: Event)
 }

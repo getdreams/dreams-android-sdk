@@ -16,7 +16,6 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.widget.FrameLayout
 import com.getdreams.Dreams
-import com.getdreams.Location
 import com.getdreams.connections.EventListener
 import com.getdreams.connections.webview.ResponseInterface
 import com.getdreams.posix
@@ -31,8 +30,9 @@ import java.net.URL
 import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
 import com.getdreams.Result
-import com.getdreams.events.Event.Response
-import com.getdreams.events.ResponseType
+import com.getdreams.events.Event
+import org.json.JSONException
+import org.json.JSONTokener
 import java.net.HttpURLConnection.HTTP_MOVED_PERM
 import java.net.HttpURLConnection.HTTP_MOVED_TEMP
 import java.net.HttpURLConnection.HTTP_OK
@@ -138,10 +138,10 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }
     }
 
-    private suspend fun getUrl(clientId: String, accessToken: String, posixLocale: String): String? {
+    private suspend fun getUrl(clientId: String, idToken: String, posixLocale: String): String? {
         val jsonBody = JSONObject()
             .put("clientId", clientId)
-            .put("accessToken", accessToken)
+            .put("idToken", idToken)
             .put("locale", posixLocale)
         val result = withContext(Dispatchers.IO) {
             makeInitRequest(
@@ -158,7 +158,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }
     }
 
-    override fun open(accessToken: String, location: Location, locale: Locale?) {
+    override fun open(idToken: String, location: String, locale: Locale?) {
         val posixLocale = locale?.posix ?: with(resources.configuration) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 locales[0] ?: Locale.ROOT
@@ -170,18 +170,28 @@ class DreamsView : FrameLayout, DreamsViewInterface {
 
         webView.addJavascriptInterface(object : ResponseInterface {
             @JavascriptInterface
-            override fun onAccessTokenDidExpire() {
-                this@DreamsView.onResponse(Response(ResponseType.AccessTokenExpired), null)
+            override fun onIdTokenDidExpire() {
+                this@DreamsView.onResponse(Event.IdTokenExpired)
             }
 
             @JavascriptInterface
-            override fun onOffboardingDidComplete() {
-                this@DreamsView.onResponse(Response(ResponseType.OffboardingCompleted), null)
+            override fun onTelemetryEvent(data: String) {
+                try {
+                    val json = JSONTokener(data).nextValue() as? JSONObject?
+                    val name = json?.getString("name")
+                    if (name != null) {
+                        this@DreamsView.onResponse(
+                            Event.Telemetry(name = name, payload = json.optJSONObject("payload"))
+                        )
+                    }
+                } catch (e: JSONException) {
+                    Log.w("Dreams", "Unable to parse telemetry", e)
+                }
             }
         }, "Native")
 
         GlobalScope.launch {
-            val url = getUrl(Dreams.instance.clientId, accessToken, posixLocale)
+            val url = getUrl(Dreams.instance.clientId, idToken, posixLocale)
             withContext(Dispatchers.Main) {
                 if (url != null) {
                     webView.loadUrl(url)
@@ -198,11 +208,11 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }
     }
 
-    override fun updateAccessToken(accessToken: String) {
+    override fun updateIdToken(idToken: String) {
         val jsonData: JSONObject = JSONObject()
-            .put("accessToken", accessToken)
-        webView.evaluateJavascript("updateAccessToken(${jsonData})") {
-            Log.v("Dreams", "updateAccessToken returned $it")
+            .put("idToken", idToken)
+        webView.evaluateJavascript("updateIdToken(${jsonData})") {
+            Log.v("Dreams", "updateIdToken returned $it")
         }
     }
 
@@ -218,8 +228,8 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         responseListeners.clear()
     }
 
-    internal fun onResponse(type: Response, data: JSONObject?) {
-        responseListeners.forEach { it.onEvent(type, data) }
+    internal fun onResponse(type: Event) {
+        responseListeners.forEach { it.onEvent(type) }
     }
 
     override fun canGoBack(): Boolean {

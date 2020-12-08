@@ -8,29 +8,22 @@ package com.getdreams.views
 
 import com.getdreams.Location
 import com.getdreams.connections.EventListener
+import com.getdreams.connections.webview.RequestInterface
 import java.util.Locale
 
 /**
  * Interface for [DreamsView].
  */
-interface DreamsViewInterface {
+interface DreamsViewInterface : RequestInterface {
     /**
      * Open Dreams at [location].
      *
-     * @param accessToken The token used to authenticate.
-     * @param location What screen to open, by default [Location.Home].
+     * @param idToken The token used to authenticate.
+     * @param location What screen to open.
      */
-    fun open(accessToken: String, location: Location = Location.Home, locale: Locale? = null)
-
-    /**
-     * Set the locale used in Dreams.
-     */
-    fun updateLocale(locale: Locale)
-
-    /**
-     * Update the access token.
-     */
-    fun updateAccessToken(accessToken: String)
+    fun open(idToken: String, location: Location, locale: Locale? = null) {
+        open(idToken, location.value, locale)
+    }
 
     /**
      * Listen to events from Dreams.
