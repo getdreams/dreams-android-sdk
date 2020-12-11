@@ -8,7 +8,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.getdreams">
     <uses-permission android:name="android.permission.INTERNET"/>
-    <application>
+    <!--suppress AndroidDomInspection - Suppressed as xml path gives a false positive -->
+    <application android:networkSecurityConfig="@xml/network_security_config">
         <activity android:name="android.app.Activity" />
     </application>
 </manifest>
