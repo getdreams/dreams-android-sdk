@@ -8,25 +8,21 @@ package com.getdreams.example
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import com.getdreams.connections.EventListener
 import com.getdreams.events.Event
-import com.getdreams.events.ResponseType
 import com.getdreams.views.DreamsView
 
 class MainActivity : AppCompatActivity() {
     private val dreamsView: DreamsView by lazy { findViewById(R.id.dreams) }
 
-    private val listener = EventListener { event, _ ->
+    private val listener = EventListener { event ->
         when (event) {
-            is Event.Response -> {
-                when (event.type) {
-                    ResponseType.AccessTokenExpired -> {
-                        dreamsView.updateAccessToken("new_token")
-                    }
-                    ResponseType.OffboardingCompleted -> {
-                        this@MainActivity.finish()
-                    }
-                }
+            is Event.IdTokenExpired -> {
+                dreamsView.updateIdToken("new_token")
+            }
+            is Event.Telemetry -> {
+                Log.v("MainActivity", "Got telemetry ${event.name}: ${event.payload?.toString(2)}")
             }
         }
     }

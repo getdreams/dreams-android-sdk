@@ -6,19 +6,19 @@
 
 package com.getdreams.events
 
-@Suppress("unused")
-enum class RequestType {
-    UpdateAccessToken,
-    UpdateLocale,
-}
-
-@Suppress("unused")
-enum class ResponseType {
-    AccessTokenExpired,
-    OffboardingCompleted,
-}
+import org.json.JSONObject
 
 sealed class Event {
-    data class Request(val type: RequestType): Event()
-    data class Response(val type: ResponseType): Event()
+    /**
+     * Event sent when token has expired.
+     */
+    object IdTokenExpired : Event()
+
+    /**
+     * Telemetry event.
+     *
+     * @param name The name of the telemetry.
+     * @param payload The optional payload.
+     */
+    data class Telemetry(val name: String, val payload: JSONObject?) : Event()
 }

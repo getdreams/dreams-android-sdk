@@ -50,10 +50,10 @@ class DreamsViewTest {
     }
 
     @Test
-    fun updateAccessToken() {
+    fun updateIdToken() {
         activityRule.scenario.onActivity {
             val dreamsView = DreamsView(it)
-            dreamsView.updateAccessToken("new_token")
+            dreamsView.updateIdToken("new_token")
         }
     }
 

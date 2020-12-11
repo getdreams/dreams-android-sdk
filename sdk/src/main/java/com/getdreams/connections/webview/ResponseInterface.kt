@@ -7,17 +7,18 @@
 package com.getdreams.connections.webview
 
 /**
- * Interface for communication from the Dreams PWA.
+ * Interface for responses from the Dreams PWA.
  */
 internal interface ResponseInterface {
+    /**
+     * The token expired.
+     */
+    fun onIdTokenDidExpire()
 
     /**
-     * Access token expired.
+     * A telemetry event was sent.
+     *
+     * @param data A JSON-string with the telemetry data.
      */
-    fun onAccessTokenDidExpire()
-
-    /**
-     * User offboarded.
-     */
-    fun onOffboardingDidComplete()
+    fun onTelemetryEvent(data: String)
 }
