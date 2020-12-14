@@ -95,6 +95,28 @@ class DreamsView : FrameLayout, DreamsViewInterface {
                 }
             }
         }
+
+        webView.addJavascriptInterface(object : ResponseInterface {
+            @JavascriptInterface
+            override fun onIdTokenDidExpire() {
+                this@DreamsView.onResponse(Event.IdTokenExpired)
+            }
+
+            @JavascriptInterface
+            override fun onTelemetryEvent(data: String) {
+                try {
+                    val json = JSONTokener(data).nextValue() as? JSONObject?
+                    val name = json?.getString("name")
+                    if (name != null) {
+                        val event = Event.Telemetry(name = name, payload = json.optJSONObject("payload"))
+                        Log.v("Dreams", "Got telemetry event: $event")
+                        this@DreamsView.onResponse(event)
+                    }
+                } catch (e: JSONException) {
+                    Log.w("Dreams", "Unable to parse telemetry", e)
+                }
+            }
+        }, "JSBridge")
     }
 
     /**
@@ -168,28 +190,6 @@ class DreamsView : FrameLayout, DreamsViewInterface {
             }
         }.posix
 
-        webView.addJavascriptInterface(object : ResponseInterface {
-            @JavascriptInterface
-            override fun onIdTokenDidExpire() {
-                this@DreamsView.onResponse(Event.IdTokenExpired)
-            }
-
-            @JavascriptInterface
-            override fun onTelemetryEvent(data: String) {
-                try {
-                    val json = JSONTokener(data).nextValue() as? JSONObject?
-                    val name = json?.getString("name")
-                    if (name != null) {
-                        this@DreamsView.onResponse(
-                            Event.Telemetry(name = name, payload = json.optJSONObject("payload"))
-                        )
-                    }
-                } catch (e: JSONException) {
-                    Log.w("Dreams", "Unable to parse telemetry", e)
-                }
-            }
-        }, "Native")
-
         GlobalScope.launch {
             val url = getUrl(Dreams.instance.clientId, idToken, posixLocale)
             withContext(Dispatchers.Main) {
@@ -203,16 +203,20 @@ class DreamsView : FrameLayout, DreamsViewInterface {
     override fun updateLocale(locale: Locale) {
         val jsonData: JSONObject = JSONObject()
             .put("locale", locale.posix)
-        webView.evaluateJavascript("updateLocale(${jsonData})") {
-            Log.v("Dreams", "updateLocale returned $it")
+        GlobalScope.launch(Dispatchers.Main.immediate) {
+            webView.evaluateJavascript("updateLocale('${jsonData}')") {
+                Log.v("Dreams", "updateLocale returned $it")
+            }
         }
     }
 
     override fun updateIdToken(idToken: String) {
         val jsonData: JSONObject = JSONObject()
             .put("idToken", idToken)
-        webView.evaluateJavascript("updateIdToken(${jsonData})") {
-            Log.v("Dreams", "updateIdToken returned $it")
+        GlobalScope.launch(Dispatchers.Main.immediate) {
+            webView.evaluateJavascript("updateIdToken('${jsonData}')") {
+                Log.v("Dreams", "updateIdToken returned $it")
+            }
         }
     }
 

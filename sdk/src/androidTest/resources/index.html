@@ -1,0 +1,29 @@
+<!--
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Testing Dreams</title>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Let tests know they can call JS functions
+        JSBridge.onTelemetryEvent(JSON.stringify({name:'content_loaded'}));
+    });
+    function updateLocale(locale) {
+        var event = { name: "locale_updated", payload: { locale } };
+        return "thanks for the locale";
+    }
+    function onEvent(name, location) {
+        window.JSBridge.onTelemetryEvent(JSON.stringify({name,payload:{location}}));
+    }
+    </script>
+</head>
+<body>
+<p id="title">This is the testing PWA</p>
+<button onclick="onEvent('user_click','button')">Click me!</button>
+</body>
+</html>
