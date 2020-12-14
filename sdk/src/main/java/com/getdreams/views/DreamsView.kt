@@ -203,16 +203,20 @@ class DreamsView : FrameLayout, DreamsViewInterface {
     override fun updateLocale(locale: Locale) {
         val jsonData: JSONObject = JSONObject()
             .put("locale", locale.posix)
-        webView.evaluateJavascript("updateLocale(${jsonData})") {
-            Log.v("Dreams", "updateLocale returned $it")
+        GlobalScope.launch(Dispatchers.Main.immediate) {
+            webView.evaluateJavascript("updateLocale('${jsonData}')") {
+                Log.v("Dreams", "updateLocale returned $it")
+            }
         }
     }
 
     override fun updateIdToken(idToken: String) {
         val jsonData: JSONObject = JSONObject()
             .put("idToken", idToken)
-        webView.evaluateJavascript("updateIdToken(${jsonData})") {
-            Log.v("Dreams", "updateIdToken returned $it")
+        GlobalScope.launch(Dispatchers.Main.immediate) {
+            webView.evaluateJavascript("updateIdToken('${jsonData}')") {
+                Log.v("Dreams", "updateIdToken returned $it")
+            }
         }
     }
 
