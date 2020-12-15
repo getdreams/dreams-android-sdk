@@ -13,7 +13,7 @@ import com.getdreams.Dreams
 import com.getdreams.R
 import com.getdreams.TestActivity
 import com.getdreams.events.Event
-import com.getdreams.test.utils.getInputStreamFromResources
+import com.getdreams.test.utils.getInputStreamFromAssets
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -50,7 +50,7 @@ class DreamsViewTest {
                     .addHeader("Location", server.url("/index").toString())
                 "/index" -> MockResponse()
                     .setResponseCode(200)
-                    .setBody(Buffer().readFrom(getInputStreamFromResources("index.html")))
+                    .setBody(Buffer().readFrom(getInputStreamFromAssets("index.html")))
                 else -> MockResponse().setResponseCode(404)
             }
         }

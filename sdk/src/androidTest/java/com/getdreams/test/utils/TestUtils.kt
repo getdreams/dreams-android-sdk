@@ -6,6 +6,8 @@
 
 package com.getdreams.test.utils
 
+import android.content.res.AssetManager
+import androidx.test.platform.app.InstrumentationRegistry
 import java.io.InputStream
 
 /**
@@ -14,6 +16,6 @@ import java.io.InputStream
  * @param path The path to the file.
  * @throws NullPointerException If file was not found.
  */
-fun getInputStreamFromResources(path: String): InputStream {
-    return ClassLoader.getSystemClassLoader().getResourceAsStream(path)!!
+fun getInputStreamFromAssets(path: String, accessMode: Int = AssetManager.ACCESS_STREAMING): InputStream {
+    return InstrumentationRegistry.getInstrumentation().context.assets.open(path, accessMode)
 }

@@ -13,9 +13,17 @@
         // Let tests know they can call JS functions
         JSBridge.onTelemetryEvent(JSON.stringify({name:'content_loaded'}));
     });
-    function updateLocale(locale) {
-        var event = { name: "locale_updated", payload: { locale } };
-        return "thanks for the locale";
+    // data is a json string: '{ "locale": string }'
+    function updateLocale(data) {
+        var obj = JSON.parse(data);
+        console.assert(obj.hasOwnProperty('locale'), 'missing locale');
+        return obj.hasOwnProperty('locale');
+    }
+    // data is a json string: '{ "idToken": string }'
+    function updateIdToken(data) {
+        var obj = JSON.parse(data);
+        console.assert(obj.hasOwnProperty('idToken'), 'missing id token');
+        return obj.hasOwnProperty('idToken');
     }
     function onEvent(name, location) {
         window.JSBridge.onTelemetryEvent(JSON.stringify({name,payload:{location}}));
