@@ -30,4 +30,9 @@ interface RequestInterface {
      * Update the id token.
      */
     fun updateIdToken(idToken: String)
+
+    /**
+     * Inform the PWA that an account was provisioned.
+     */
+    fun accountProvisioned()
 }

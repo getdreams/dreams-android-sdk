@@ -25,6 +25,9 @@
         console.assert(obj.hasOwnProperty('idToken'), 'missing id token');
         return obj.hasOwnProperty('idToken');
     }
+    function accountProvisioned() {
+        return "OK";
+    }
     function onEvent(name, location) {
         window.JSBridge.onTelemetryEvent(JSON.stringify({name,payload:{location}}));
     }

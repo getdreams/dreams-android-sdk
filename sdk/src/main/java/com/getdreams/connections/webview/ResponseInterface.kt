@@ -21,4 +21,9 @@ internal interface ResponseInterface {
      * @param data A JSON-string with the telemetry data.
      */
     fun onTelemetryEvent(data: String)
+
+    /**
+     * An account should be provisioned.
+     */
+    fun onAccountProvisionRequested()
 }

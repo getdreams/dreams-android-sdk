@@ -116,6 +116,11 @@ class DreamsView : FrameLayout, DreamsViewInterface {
                     Log.w("Dreams", "Unable to parse telemetry", e)
                 }
             }
+
+            @JavascriptInterface
+            override fun onAccountProvisionRequested() {
+                this@DreamsView.onResponse(Event.AccountProvisionRequested)
+            }
         }, "JSBridge")
     }
 
@@ -216,6 +221,14 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         GlobalScope.launch(Dispatchers.Main.immediate) {
             webView.evaluateJavascript("updateIdToken('${jsonData}')") {
                 Log.v("Dreams", "updateIdToken returned $it")
+            }
+        }
+    }
+
+    override fun accountProvisioned() {
+        GlobalScope.launch(Dispatchers.Main.immediate) {
+            webView.evaluateJavascript("accountProvisioned()") {
+                Log.v("Dreams", "accountProvisioned returned $it")
             }
         }
     }

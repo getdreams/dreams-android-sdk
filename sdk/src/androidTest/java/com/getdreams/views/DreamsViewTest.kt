@@ -114,7 +114,7 @@ class DreamsViewTest {
                         if ("content_loaded" == event.name) {
                             dreamsView.updateLocale(Locale.ROOT)
                             GlobalScope.launch {
-                                delay(250) // Delay to allow sending locale
+                                delay(250)
                                 latch.countDown()
                             }
                         }
@@ -143,7 +143,7 @@ class DreamsViewTest {
                         if ("content_loaded" == event.name) {
                             dreamsView.updateIdToken("new_token")
                             GlobalScope.launch {
-                                delay(250) // Delay to allow sending locale
+                                delay(250)
                                 latch.countDown()
                             }
                         }
@@ -151,6 +151,30 @@ class DreamsViewTest {
                 }
             }
         }
+        latch.await(5, TimeUnit.SECONDS)
+    }
+
+    @Test
+    fun accountProvisioned() {
+        val latch = CountDownLatch(1)
+        activityRule.scenario.onActivity {
+            val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
+            dreamsView.open("token")
+            dreamsView.registerEventListener { event ->
+                when (event) {
+                    is Event.Telemetry -> {
+                        if ("content_loaded" == event.name) {
+                            dreamsView.accountProvisioned()
+                            GlobalScope.launch {
+                                delay(250)
+                                latch.countDown()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        latch.await(5, TimeUnit.SECONDS)
     }
 
     @Test
