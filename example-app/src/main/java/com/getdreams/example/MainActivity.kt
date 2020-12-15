@@ -9,6 +9,7 @@ package com.getdreams.example
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AlertDialog
 import com.getdreams.connections.EventListener
 import com.getdreams.events.Event
 import com.getdreams.views.DreamsView
@@ -23,6 +24,19 @@ class MainActivity : AppCompatActivity() {
             }
             is Event.Telemetry -> {
                 Log.v("MainActivity", "Got telemetry ${event.name}: ${event.payload?.toString(2)}")
+            }
+            is Event.AccountProvisionRequested -> {
+                // Provision an account to the user
+                AlertDialog.Builder(this)
+                    .setMessage("Provision Account?")
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        // Tell Dreams the account was provisioned
+                        dreamsView.accountProvisioned()
+                    }
+                    .setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                        dialog.cancel()
+                    }
+                    .show()
             }
         }
     }
