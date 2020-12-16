@@ -26,4 +26,9 @@ internal interface ResponseInterface {
      * An account should be provisioned.
      */
     fun onAccountProvisionRequested(requestData: String)
+
+    /**
+     * The user requested to exit Dreams.
+     */
+    fun onExitRequested()
 }

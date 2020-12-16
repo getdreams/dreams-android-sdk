@@ -38,6 +38,10 @@ class MainActivity : AppCompatActivity() {
                     }
                     .show()
             }
+            is Event.ExitRequested -> {
+                // We should exit the Dreams context
+                finish()
+            }
         }
     }
 
