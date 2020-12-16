@@ -21,4 +21,9 @@ sealed class Event {
      * @param payload The optional payload.
      */
     data class Telemetry(val name: String, val payload: JSONObject?) : Event()
+
+    /**
+     * Event informing that an account should be provisioned.
+     */
+    object AccountProvisionRequested : Event()
 }
