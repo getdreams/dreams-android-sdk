@@ -136,21 +136,12 @@ class DreamsViewTest {
     @Test
     fun updateIdToken() {
         val latch = CountDownLatch(1)
-        activityRule.scenario.onActivity {
-            val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
-            dreamsView.open("token")
-            dreamsView.registerEventListener { event ->
-                when (event) {
-                    is Event.Telemetry -> {
-                        if ("content_loaded" == event.name) {
-                            dreamsView.updateIdToken("fake id", "new_token")
-                            GlobalScope.launch {
-                                delay(250)
-                                latch.countDown()
-                            }
-                        }
-                    }
-                }
+        activityRule.testResponseEvent("expire_token_button") { event, view ->
+            assertEquals(Event.IdTokenExpired("uuid"), event)
+            view.updateIdToken((event as Event.IdTokenExpired).requestId, "new token")
+            GlobalScope.launch {
+                delay(250)
+                latch.countDown()
             }
         }
         assertTrue(latch.await(5, TimeUnit.SECONDS))
@@ -159,21 +150,12 @@ class DreamsViewTest {
     @Test
     fun accountProvisioned() {
         val latch = CountDownLatch(1)
-        activityRule.scenario.onActivity {
-            val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
-            dreamsView.open("token")
-            dreamsView.registerEventListener { event ->
-                when (event) {
-                    is Event.Telemetry -> {
-                        if ("content_loaded" == event.name) {
-                            dreamsView.accountProvisioned("fake id")
-                            GlobalScope.launch {
-                                delay(250)
-                                latch.countDown()
-                            }
-                        }
-                    }
-                }
+        activityRule.testResponseEvent("provision_account_button") { event, view ->
+            assertEquals(Event.AccountProvisionRequested("uuid"), event)
+            view.accountProvisioned((event as Event.AccountProvisionRequested).requestId)
+            GlobalScope.launch {
+                delay(250)
+                latch.countDown()
             }
         }
         assertTrue(latch.await(5, TimeUnit.SECONDS))
@@ -182,7 +164,7 @@ class DreamsViewTest {
     @Test
     fun onExitRequested() {
         val latch = CountDownLatch(1)
-        activityRule.testResponseEvent("exit_button") { event ->
+        activityRule.testResponseEvent("exit_button") { event, _ ->
             assertEquals(Event.ExitRequested, event)
             latch.countDown()
         }

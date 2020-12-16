@@ -23,7 +23,8 @@
     function updateIdToken(data) {
         var obj = JSON.parse(data);
         console.assert(obj.hasOwnProperty('idToken'), 'missing id token');
-        return obj.hasOwnProperty('idToken');
+        console.assert(obj.hasOwnProperty('requestId'), 'missing request id');
+        return obj.hasOwnProperty('idToken') && obj.hasOwnProperty('requestId');
     }
     function accountProvisioned() {
         return "OK";
@@ -34,11 +35,19 @@
     function exit() {
         JSBridge.onExitRequested();
     }
+    function expireToken() {
+        JSBridge.onIdTokenDidExpire(JSON.stringify({requestId:"uuid"}));
+    }
+    function provisionAccount() {
+        JSBridge.onAccountProvisionRequested(JSON.stringify({requestId:"uuid"}));
+    }
     </script>
 </head>
 <body>
 <p id="title">This is the testing PWA</p>
 <button id="telemetry_button" onclick="onEvent('user_click','button')">telemetry</button>
 <button id="exit_button" onclick="exit()">exit</button>
+<button id="expire_token_button" onclick="expireToken()">expire id token</button>
+<button id="provision_account_button" onclick="provisionAccount()">provision account</button>
 </body>
 </html>

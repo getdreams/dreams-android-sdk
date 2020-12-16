@@ -7,9 +7,7 @@
 package com.getdreams.test.utils
 
 import android.content.res.AssetManager
-import androidx.test.espresso.web.sugar.Web
 import androidx.test.espresso.web.sugar.Web.onWebView
-import androidx.test.espresso.web.webdriver.DriverAtoms
 import androidx.test.espresso.web.webdriver.DriverAtoms.findElement
 import androidx.test.espresso.web.webdriver.DriverAtoms.webClick
 import androidx.test.espresso.web.webdriver.Locator
@@ -22,7 +20,6 @@ import com.getdreams.views.DreamsView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import org.junit.Assert
 import org.junit.Assert.assertTrue
 import java.io.InputStream
 import java.util.concurrent.CountDownLatch
@@ -43,7 +40,7 @@ fun getInputStreamFromAssets(path: String, accessMode: Int = AssetManager.ACCESS
  */
 inline fun ActivityScenarioRule<TestActivity>.testResponseEvent(
     buttonId: String,
-    crossinline listener: (Event) -> Unit
+    crossinline listener: (Event, DreamsView) -> Unit
 ) {
     val contentLatch = CountDownLatch(1)
     scenario.onActivity { activity ->
@@ -58,7 +55,7 @@ inline fun ActivityScenarioRule<TestActivity>.testResponseEvent(
                         dreamsView.registerEventListener {
                             // Run on main to register errors for test
                             GlobalScope.launch(Dispatchers.Main) {
-                                listener(it)
+                                listener(it, dreamsView)
                             }
                         }
                     } else {
@@ -70,7 +67,7 @@ inline fun ActivityScenarioRule<TestActivity>.testResponseEvent(
         }
     }
     assertTrue(contentLatch.await(5, TimeUnit.SECONDS))
-    onWebView().forceJavascriptEnabled()
+    onWebView()
         .withElement(findElement(Locator.ID, buttonId))
         .perform(webClick())
 }
