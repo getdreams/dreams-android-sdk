@@ -98,8 +98,16 @@ class DreamsView : FrameLayout, DreamsViewInterface {
 
         webView.addJavascriptInterface(object : ResponseInterface {
             @JavascriptInterface
-            override fun onIdTokenDidExpire() {
-                this@DreamsView.onResponse(Event.IdTokenExpired)
+            override fun onIdTokenDidExpire(requestData: String) {
+                try {
+                    val json = JSONTokener(requestData).nextValue() as? JSONObject?
+                    val requestId = json?.getString("requestId")
+                    if (requestId != null) {
+                        this@DreamsView.onResponse(Event.IdTokenExpired(requestId))
+                    }
+                } catch (e: JSONException) {
+                    Log.w("Dreams", "Unable to parse request data", e)
+                }
             }
 
             @JavascriptInterface
@@ -118,8 +126,16 @@ class DreamsView : FrameLayout, DreamsViewInterface {
             }
 
             @JavascriptInterface
-            override fun onAccountProvisionRequested() {
-                this@DreamsView.onResponse(Event.AccountProvisionRequested)
+            override fun onAccountProvisionRequested(requestData: String) {
+                try {
+                    val json = JSONTokener(requestData).nextValue() as? JSONObject?
+                    val requestId = json?.getString("requestId")
+                    if (requestId != null) {
+                        this@DreamsView.onResponse(Event.AccountProvisionRequested(requestId))
+                    }
+                } catch (e: JSONException) {
+                    Log.w("Dreams", "Unable to parse request data", e)
+                }
             }
         }, "JSBridge")
     }
@@ -215,8 +231,9 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }
     }
 
-    override fun updateIdToken(idToken: String) {
+    override fun updateIdToken(requestId: String, idToken: String) {
         val jsonData: JSONObject = JSONObject()
+            .put("requestId", requestId)
             .put("idToken", idToken)
         GlobalScope.launch(Dispatchers.Main.immediate) {
             webView.evaluateJavascript("updateIdToken('${jsonData}')") {
@@ -225,9 +242,11 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }
     }
 
-    override fun accountProvisioned() {
+    override fun accountProvisioned(requestId: String) {
+        val jsonData: JSONObject = JSONObject()
+            .put("requestId", requestId)
         GlobalScope.launch(Dispatchers.Main.immediate) {
-            webView.evaluateJavascript("accountProvisioned()") {
+            webView.evaluateJavascript("accountProvisioned('${jsonData}')") {
                 Log.v("Dreams", "accountProvisioned returned $it")
             }
         }

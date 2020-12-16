@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity() {
     private val listener = EventListener { event ->
         when (event) {
             is Event.IdTokenExpired -> {
-                dreamsView.updateIdToken("new_token")
+                dreamsView.updateIdToken(requestId = event.requestId, idToken = "new_token")
             }
             is Event.Telemetry -> {
                 Log.v("MainActivity", "Got telemetry ${event.name}: ${event.payload?.toString(2)}")
@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
                     .setMessage("Provision Account?")
                     .setPositiveButton(android.R.string.ok) { _, _ ->
                         // Tell Dreams the account was provisioned
-                        dreamsView.accountProvisioned()
+                        dreamsView.accountProvisioned(requestId = event.requestId)
                     }
                     .setNegativeButton(android.R.string.cancel) { dialog, _ ->
                         dialog.cancel()

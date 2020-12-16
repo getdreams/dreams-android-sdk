@@ -12,7 +12,7 @@ sealed class Event {
     /**
      * Event sent when token has expired.
      */
-    object IdTokenExpired : Event()
+    data class IdTokenExpired(override val requestId: String) : RequestData, Event()
 
     /**
      * Telemetry event.
@@ -25,5 +25,5 @@ sealed class Event {
     /**
      * Event informing that an account should be provisioned.
      */
-    object AccountProvisionRequested : Event()
+    data class AccountProvisionRequested(override val requestId: String) :  RequestData, Event()
 }
