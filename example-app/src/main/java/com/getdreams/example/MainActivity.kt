@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
                     .setMessage("Provision Account?")
                     .setPositiveButton(android.R.string.ok) { _, _ ->
                         // Tell Dreams the account was provisioned
-                        dreamsView.accountProvisioned(requestId = event.requestId)
+                        dreamsView.accountProvisionInitiated(requestId = event.requestId)
                     }
                     .setNegativeButton(android.R.string.cancel) { dialog, _ ->
                         dialog.cancel()
