@@ -1,5 +1,10 @@
 # Dreams Android SDK
 
+## Requirements
+
+* Minimum Android SDK version: 21
+* Java source and target compatibility version: 1.8
+
 ## Installation
 
 Register the github maven repository by adding it to your project build.gradle.
@@ -81,6 +86,34 @@ val dreamsView: DreamsView = findViewById<DreamsView>(R.id.dreams)
 dreamsView.open(accessToken = "user token", location = Location.Home, locale = null)
 ```
 
+### Events
+
+In order to listen for events from Dreams you need to register a listener on the DreamsView.
+
+```kotlin
+dreamsView.registerEventListener { event ->
+    when (event) {
+        is Event.Telemetry -> { /* Use telemetry event */ }
+    }
+}
+```
+
+#### Token renewal
+
+When a token requires renewal a `IdTokenExpired` event will be sent, to set a new token you need to call
+ `DreamsView.updateIdToken` with the request id from the event and the new token.
+
+ ```kotlin
+dreamsView.registerEventListener { event ->
+    when (event) {
+        is Event.IdTokenExpired -> {
+            val newToken = getValidToken()
+            dreamsView.updateIdToken(requestId = event.requestId, idToken = newToken)
+        }
+    }
+}
+```
+
 ## Documentation
 
 You can generate documentation by running the relevant Dokka task.
@@ -105,7 +138,7 @@ You can generate documentation by running the relevant Dokka task.
 
 ## Development
 
-Simply clone the repo and open the project in Android Studio.
+Simply clone the repo and open the project in Android Studio 4.0 or later.
 
 ### Publishing
 
