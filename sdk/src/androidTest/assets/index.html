@@ -31,10 +31,14 @@
     function onEvent(name, location) {
         window.JSBridge.onTelemetryEvent(JSON.stringify({name,payload:{location}}));
     }
+    function exit() {
+        JSBridge.onExitRequested();
+    }
     </script>
 </head>
 <body>
 <p id="title">This is the testing PWA</p>
-<button onclick="onEvent('user_click','button')">Click me!</button>
+<button id="telemetry_button" onclick="onEvent('user_click','button')">telemetry</button>
+<button id="exit_button" onclick="exit()">exit</button>
 </body>
 </html>

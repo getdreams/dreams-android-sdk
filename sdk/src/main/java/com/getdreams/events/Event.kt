@@ -26,4 +26,9 @@ sealed class Event {
      * Event informing that an account should be provisioned.
      */
     data class AccountProvisionRequested(override val requestId: String) :  RequestData, Event()
+
+    /**
+     * Event sent when the Dreams should be exited.
+     */
+    object ExitRequested : Event()
 }

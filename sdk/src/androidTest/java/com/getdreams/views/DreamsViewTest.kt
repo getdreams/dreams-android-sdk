@@ -14,6 +14,7 @@ import com.getdreams.R
 import com.getdreams.TestActivity
 import com.getdreams.events.Event
 import com.getdreams.test.utils.getInputStreamFromAssets
+import com.getdreams.test.utils.testResponseEvent
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -24,6 +25,7 @@ import okhttp3.mockwebserver.RecordedRequest
 import okio.Buffer
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -87,7 +89,7 @@ class DreamsViewTest {
                 }
             }
         }
-        latch.await(5, TimeUnit.SECONDS)
+        assertTrue(latch.await(5, TimeUnit.SECONDS))
 
         val initPost = server.takeRequest()
         assertEquals("/", initPost.path)
@@ -122,7 +124,7 @@ class DreamsViewTest {
                 }
             }
         }
-        latch.await(5, TimeUnit.SECONDS)
+        assertTrue(latch.await(5, TimeUnit.SECONDS))
         val open = server.takeRequest()
         assertEquals("/", open.path)
         assertEquals("POST", open.method)
@@ -151,7 +153,7 @@ class DreamsViewTest {
                 }
             }
         }
-        latch.await(5, TimeUnit.SECONDS)
+        assertTrue(latch.await(5, TimeUnit.SECONDS))
     }
 
     @Test
@@ -174,7 +176,17 @@ class DreamsViewTest {
                 }
             }
         }
-        latch.await(5, TimeUnit.SECONDS)
+        assertTrue(latch.await(5, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun onExitRequested() {
+        val latch = CountDownLatch(1)
+        activityRule.testResponseEvent("exit_button") { event ->
+            assertEquals(Event.ExitRequested, event)
+            latch.countDown()
+        }
+        assertTrue(latch.await(5, TimeUnit.SECONDS))
     }
 
     @Test

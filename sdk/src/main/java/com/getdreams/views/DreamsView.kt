@@ -137,6 +137,11 @@ class DreamsView : FrameLayout, DreamsViewInterface {
                     Log.w("Dreams", "Unable to parse request data", e)
                 }
             }
+
+            @JavascriptInterface
+            override fun onExitRequested() {
+                this@DreamsView.onResponse(Event.ExitRequested)
+            }
         }, "JSBridge")
     }
 
