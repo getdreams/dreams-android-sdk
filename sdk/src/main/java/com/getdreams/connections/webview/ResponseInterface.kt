@@ -13,7 +13,7 @@ internal interface ResponseInterface {
     /**
      * The token expired.
      */
-    fun onIdTokenDidExpire()
+    fun onIdTokenDidExpire(requestData: String)
 
     /**
      * A telemetry event was sent.
@@ -25,5 +25,5 @@ internal interface ResponseInterface {
     /**
      * An account should be provisioned.
      */
-    fun onAccountProvisionRequested()
+    fun onAccountProvisionRequested(requestData: String)
 }

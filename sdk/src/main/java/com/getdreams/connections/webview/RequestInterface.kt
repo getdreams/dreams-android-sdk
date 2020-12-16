@@ -23,16 +23,23 @@ interface RequestInterface {
 
     /**
      * Set the locale used in Dreams.
+     *
+     * @param locale The new locale.
      */
     fun updateLocale(locale: Locale)
 
     /**
      * Update the id token.
+     *
+     * @param requestId The request id of the event that informed that the token was expired.
+     * @param idToken The new id token.
      */
-    fun updateIdToken(idToken: String)
+    fun updateIdToken(requestId: String, idToken: String)
 
     /**
      * Inform the PWA that an account was provisioned.
+     *
+     * @param requestId The request id of the event that triggered the account provisioning.
      */
-    fun accountProvisioned()
+    fun accountProvisioned(requestId: String)
 }

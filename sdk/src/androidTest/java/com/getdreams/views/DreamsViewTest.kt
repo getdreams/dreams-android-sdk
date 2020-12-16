@@ -141,7 +141,7 @@ class DreamsViewTest {
                 when (event) {
                     is Event.Telemetry -> {
                         if ("content_loaded" == event.name) {
-                            dreamsView.updateIdToken("new_token")
+                            dreamsView.updateIdToken("fake id", "new_token")
                             GlobalScope.launch {
                                 delay(250)
                                 latch.countDown()
@@ -164,7 +164,7 @@ class DreamsViewTest {
                 when (event) {
                     is Event.Telemetry -> {
                         if ("content_loaded" == event.name) {
-                            dreamsView.accountProvisioned()
+                            dreamsView.accountProvisioned("fake id")
                             GlobalScope.launch {
                                 delay(250)
                                 latch.countDown()
