@@ -41,5 +41,5 @@ interface RequestInterface {
      *
      * @param requestId The request id of the event that triggered the account provisioning.
      */
-    fun accountProvisioned(requestId: String)
+    fun accountProvisionInitiated(requestId: String)
 }

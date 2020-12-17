@@ -247,11 +247,11 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }
     }
 
-    override fun accountProvisioned(requestId: String) {
+    override fun accountProvisionInitiated(requestId: String) {
         val jsonData: JSONObject = JSONObject()
             .put("requestId", requestId)
         GlobalScope.launch(Dispatchers.Main.immediate) {
-            webView.evaluateJavascript("accountProvisioned('${jsonData}')") {
+            webView.evaluateJavascript("accountProvisionInitiated('${jsonData}')") {
                 Log.v("Dreams", "accountProvisioned returned $it")
             }
         }

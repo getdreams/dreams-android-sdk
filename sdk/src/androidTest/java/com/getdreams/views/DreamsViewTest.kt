@@ -152,7 +152,7 @@ class DreamsViewTest {
         val latch = CountDownLatch(1)
         activityRule.testResponseEvent("provision_account_button") { event, view ->
             assertEquals(Event.AccountProvisionRequested("uuid"), event)
-            view.accountProvisioned((event as Event.AccountProvisionRequested).requestId)
+            view.accountProvisionInitiated((event as Event.AccountProvisionRequested).requestId)
             GlobalScope.launch {
                 delay(250)
                 latch.countDown()
