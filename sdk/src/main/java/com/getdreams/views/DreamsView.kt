@@ -194,8 +194,8 @@ class DreamsView : FrameLayout, DreamsViewInterface {
 
     private suspend fun getUrl(clientId: String, idToken: String, posixLocale: String): String? {
         val jsonBody = JSONObject()
-            .put("clientId", clientId)
-            .put("idToken", idToken)
+            .put("client_id", clientId)
+            .put("token", idToken)
             .put("locale", posixLocale)
         val result = withContext(Dispatchers.IO) {
             makeInitRequest(

@@ -96,7 +96,7 @@ class DreamsViewTest {
         assertEquals("POST", initPost.method)
         assertEquals("application/json; utf-8", initPost.getHeader("Content-Type"))
         assertEquals("application/json", initPost.getHeader("Accept"))
-        val expectedBody = """{"clientId":"clientId","idToken":"id token","locale":"fr_CA"}"""
+        val expectedBody = """{"client_id":"clientId","token":"id token","locale":"fr_CA"}"""
         assertEquals(expectedBody, initPost.body.readUtf8())
 
         val urlLoad = server.takeRequest()
