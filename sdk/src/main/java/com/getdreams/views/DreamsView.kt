@@ -157,7 +157,13 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         uri: Uri,
         jsonBody: JSONObject
     ): Result<InitResponse> {
-        val url = URL(uri.toString())
+        val url = URL(
+            uri.buildUpon()
+                .appendPath("users")
+                .appendPath("verify_token")
+                .build()
+                .toString()
+        )
         try {
             (url.openConnection() as? HttpURLConnection)?.run {
                 requestMethod = "POST"

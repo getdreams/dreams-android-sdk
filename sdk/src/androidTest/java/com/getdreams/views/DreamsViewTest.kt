@@ -47,7 +47,7 @@ class DreamsViewTest {
     class MockDreamsDispatcher(private val server: MockWebServer) : Dispatcher() {
         override fun dispatch(request: RecordedRequest): MockResponse {
             return when (request.path) {
-                "/" -> MockResponse()
+                "/users/verify_token" -> MockResponse()
                     .setResponseCode(302)
                     .addHeader("Location", server.url("/index").toString())
                 "/index" -> MockResponse()
@@ -92,7 +92,7 @@ class DreamsViewTest {
         assertTrue(latch.await(5, TimeUnit.SECONDS))
 
         val initPost = server.takeRequest()
-        assertEquals("/", initPost.path)
+        assertEquals("/users/verify_token", initPost.path)
         assertEquals("POST", initPost.method)
         assertEquals("application/json; utf-8", initPost.getHeader("Content-Type"))
         assertEquals("application/json", initPost.getHeader("Accept"))
@@ -126,7 +126,7 @@ class DreamsViewTest {
         }
         assertTrue(latch.await(5, TimeUnit.SECONDS))
         val open = server.takeRequest()
-        assertEquals("/", open.path)
+        assertEquals("/users/verify_token", open.path)
         assertEquals("POST", open.method)
         val urlLoad = server.takeRequest()
         assertEquals("/index", urlLoad.path)
