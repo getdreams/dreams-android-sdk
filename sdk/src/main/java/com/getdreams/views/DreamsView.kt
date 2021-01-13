@@ -12,6 +12,7 @@ import android.net.Uri
 import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
+import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.widget.FrameLayout
@@ -148,7 +149,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
     /**
      * The response from the init call.
      */
-    internal data class InitResponse(val url: String)
+    internal data class InitResponse(val url: String, val cookies: List<String>?)
 
     /**
      * Make the initial request to the PWA.
@@ -157,7 +158,13 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         uri: Uri,
         jsonBody: JSONObject
     ): Result<InitResponse> {
-        val url = URL(uri.toString())
+        val url = URL(
+            uri.buildUpon()
+                .appendPath("users")
+                .appendPath("verify_token")
+                .build()
+                .toString()
+        )
         try {
             (url.openConnection() as? HttpURLConnection)?.run {
                 requestMethod = "POST"
@@ -173,11 +180,13 @@ class DreamsView : FrameLayout, DreamsViewInterface {
                 return when (responseCode) {
                     HTTP_MOVED_PERM, HTTP_MOVED_TEMP, HTTP_SEE_OTHER -> {
                         getHeaderField("Location")?.let {
-                            Result.Success(InitResponse(it))
+                            Result.Success(InitResponse(it, headerFields["Set-Cookie"]?.filterNotNull()))
                         } ?: Result.Error(Exception("No location header"))
                     }
-                    HTTP_OK -> Result.Success(InitResponse(getURL().toString()))
-                    else -> Result.Error(Exception("Unexpected response code: $responseCode"))
+                    HTTP_OK -> {
+                        Result.Success(InitResponse(getURL().toString(), headerFields["Set-Cookie"]?.filterNotNull()))
+                    }
+                    else -> Result.Error(Exception("Unexpected response code: $responseCode ($responseMessage)"))
                 }
             }
             return Result.Error(Exception("Cannot open HttpURLConnection"))
@@ -188,8 +197,8 @@ class DreamsView : FrameLayout, DreamsViewInterface {
 
     private suspend fun getUrl(clientId: String, idToken: String, posixLocale: String): String? {
         val jsonBody = JSONObject()
-            .put("clientId", clientId)
-            .put("idToken", idToken)
+            .put("client_id", clientId)
+            .put("token", idToken)
             .put("locale", posixLocale)
         val result = withContext(Dispatchers.IO) {
             makeInitRequest(
@@ -198,7 +207,19 @@ class DreamsView : FrameLayout, DreamsViewInterface {
             )
         }
         return when (result) {
-            is Result.Success<InitResponse> -> result.data.url
+            is Result.Success<InitResponse> -> {
+                with(result.data) {
+                    // If we got a cookie set it now
+                    if (!cookies.isNullOrEmpty()) {
+                        val cookieManager = CookieManager.getInstance()
+                        cookieManager.setAcceptCookie(true)
+                        cookies.forEach { cookie ->
+                            cookieManager.setCookie(url, cookie)
+                        }
+                    }
+                    return@with url
+                }
+            }
             is Result.Error -> {
                 Log.e("Dreams", "Unable to initialize PWA", result.exception)
                 null
