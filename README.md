@@ -28,7 +28,7 @@ Add the library to your module dependencies.
 
 ```groovy
 dependencies {
-    implementation 'com.getdreams:android-sdk:0.2.0'
+    implementation 'com.getdreams:android-sdk:0.2.1'
 }
 ```
 
