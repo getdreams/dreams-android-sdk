@@ -28,20 +28,22 @@ class DreamsUnitTest {
     @Test
     fun initialize() {
         assertFalse(Dreams.initialized)
-        Dreams.setup("clientId", "endpoint")
+        val conf = Dreams.Configuration("clientId", "endpoint")
+        Dreams.configure(conf)
+        assertEquals(conf, Dreams.instance.configuration)
         assertEquals("clientId", Dreams.instance.clientId)
         assertEquals(Uri.parse("endpoint"), Dreams.instance.baseUri)
         assertTrue(Dreams.initialized)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun setupRequiresValidClientId() {
-        Dreams.setup("", "url")
+    fun configureRequiresValidClientId() {
+        Dreams.configure(Dreams.Configuration("", "url"))
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun setupRequiresValidBaseUrl() {
-        Dreams.setup("clientId", "")
+    fun configureRequiresValidBaseUrl() {
+        Dreams.configure(Dreams.Configuration("clientId", ""))
     }
 
     @Test(expected = RuntimeException::class)

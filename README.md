@@ -61,13 +61,13 @@ GITHUB_TOKEN="token"
 
 ## Usage
 
-Before using any other part of the SDK you must call `Dreams.setup()`. This can be done in `Application.onCreate()`.
+Before using any other part of the SDK you must call `Dreams.configure()`. This can be done in `Application.onCreate()`.
 
 ```kotlin
 class ExampleApp : Application() {
     override fun onCreate() {
         super.onCreate()
-        Dreams.setup(clientId = "your client id", baseUrl = "url")
+        Dreams.configure(clientId = "your client id", baseUrl = "url")
     }
 }
 ```
