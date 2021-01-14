@@ -67,7 +67,7 @@ Before using any other part of the SDK you must call `Dreams.configure()`. This 
 class ExampleApp : Application() {
     override fun onCreate() {
         super.onCreate()
-        Dreams.configure(clientId = "your client id", baseUrl = "url")
+        Dreams.configure(Dreams.Configuration(clientId = "clientId", baseUrl = "https://getdreams.io"))
     }
 }
 ```
