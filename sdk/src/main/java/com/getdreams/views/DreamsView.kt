@@ -31,6 +31,7 @@ import java.net.URL
 import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
 import com.getdreams.Result
+import com.getdreams.Credentials
 import com.getdreams.events.Event
 import org.json.JSONException
 import org.json.JSONTokener
@@ -235,7 +236,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }
     }
 
-    override fun open(idToken: String, location: String, locale: Locale?) {
+    override fun open(credentials: Credentials, location: String, locale: Locale?) {
         val posixLocale = locale?.posix ?: with(resources.configuration) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 locales[0] ?: Locale.ROOT
@@ -246,7 +247,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }.posix
 
         GlobalScope.launch {
-            val url = getUrl(Dreams.instance.clientId, idToken, posixLocale)
+            val url = getUrl(Dreams.instance.clientId, credentials.idToken, posixLocale)
             withContext(Dispatchers.Main) {
                 if (url != null) {
                     webView.loadUrl(url)

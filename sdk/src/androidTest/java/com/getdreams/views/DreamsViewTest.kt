@@ -9,6 +9,7 @@ package com.getdreams.views
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import com.getdreams.Credentials
 import com.getdreams.Dreams
 import com.getdreams.R
 import com.getdreams.TestActivity
@@ -71,12 +72,10 @@ class DreamsViewTest {
 
     @Test
     fun open() {
-        server.dispatcher = MockDreamsDispatcher(server)
-
         val latch = CountDownLatch(1)
         activityRule.scenario.onActivity {
             val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
-            dreamsView.open("id token", locale = Locale.CANADA_FRENCH)
+            dreamsView.open(Credentials("id token"), locale = Locale.CANADA_FRENCH)
             dreamsView.registerEventListener { event ->
                 when (event) {
                     is Event.Telemetry -> {
@@ -109,7 +108,7 @@ class DreamsViewTest {
         val latch = CountDownLatch(1)
         activityRule.scenario.onActivity {
             val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
-            dreamsView.open("token")
+            dreamsView.open(Credentials("token"))
             dreamsView.registerEventListener { event ->
                 when (event) {
                     is Event.Telemetry -> {

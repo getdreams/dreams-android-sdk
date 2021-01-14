@@ -7,6 +7,7 @@
 package com.getdreams.connections.webview
 
 import com.getdreams.Location
+import com.getdreams.Credentials
 import java.util.Locale
 
 /**
@@ -16,10 +17,10 @@ interface RequestInterface {
     /**
      * Open Dreams at [location].
      *
-     * @param idToken The token used to authenticate.
+     * @param credentials Credentials used to authenticate the user.
      * @param location What screen to open, by default `home`.
      */
-    fun open(idToken: String, location: String = Location.Home.value, locale: Locale? = null)
+    fun open(credentials: Credentials, location: String = Location.Home.value, locale: Locale? = null)
 
     /**
      * Set the locale used in Dreams.

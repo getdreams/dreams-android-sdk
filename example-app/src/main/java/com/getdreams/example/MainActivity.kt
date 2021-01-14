@@ -9,6 +9,7 @@ package com.getdreams.example
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.getdreams.Credentials
 import com.getdreams.connections.EventListener
 import com.getdreams.events.Event
 import com.getdreams.views.DreamsView
@@ -67,7 +68,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        dreamsView.open("token")
+        dreamsView.open(Credentials("token"))
         dreamsView.registerEventListener(listener)
     }
 

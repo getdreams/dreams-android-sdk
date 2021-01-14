@@ -83,7 +83,7 @@ To show Dreams simply add `DreamsView` to a layout, and then call `DreamsView.op
 
 ```kotlin
 val dreamsView: DreamsView = findViewById<DreamsView>(R.id.dreams)
-dreamsView.open(accessToken = "user token", location = Location.Home, locale = null)
+dreamsView.open(Dreams.Credentials(idToken = "user token"), location = Location.Home, locale = null)
 ```
 
 ### Events
