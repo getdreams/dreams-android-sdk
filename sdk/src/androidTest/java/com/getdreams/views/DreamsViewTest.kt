@@ -61,7 +61,7 @@ class DreamsViewTest {
     @Before
     fun setup() {
         server.dispatcher = MockDreamsDispatcher(server)
-        Dreams.setup("clientId", server.url("/").toString())
+        Dreams.configure(Dreams.Configuration("clientId", server.url("/").toString()))
     }
 
     @After

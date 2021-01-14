@@ -10,11 +10,13 @@ import android.content.Context
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 object FakeBackend {
     /**
@@ -41,18 +43,20 @@ object FakeBackend {
     fun provisionAccountAsync(context: Context): Deferred<Boolean> {
         return GlobalScope.async {
             val result = Job()
-            AlertDialog.Builder(context)
-                .setMessage("Provision Account?")
-                .setPositiveButton(android.R.string.ok) { _, _ ->
-                    result.complete()
-                }
-                .setNegativeButton(android.R.string.cancel) { dialog, _ ->
-                    result.cancel()
-                    dialog.cancel()
-                }
-                .show()
+            GlobalScope.launch(Dispatchers.Main) {
+                AlertDialog.Builder(context)
+                    .setMessage("Provision Account?")
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        result.complete()
+                    }
+                    .setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                        result.cancel()
+                        dialog.cancel()
+                    }
+                    .show()
+            }
             result.join()
-            result.isCompleted
+            result.isCompleted && !result.isCancelled
         }
     }
 }

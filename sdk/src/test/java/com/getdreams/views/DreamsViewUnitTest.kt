@@ -26,7 +26,7 @@ class DreamsViewUnitTest {
 
     @Before
     fun setup() {
-        Dreams.setup("clientId", "https://getdreams.com")
+        Dreams.configure(Dreams.Configuration("clientId", "https://localhost"))
     }
 
     @Test

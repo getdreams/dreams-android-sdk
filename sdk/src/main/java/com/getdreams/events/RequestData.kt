@@ -7,7 +7,7 @@
 package com.getdreams.events
 
 /**
- * Interface detailing what data comes with all requests from the PWA.
+ * Interface detailing what data comes with all requests from the web app.
  */
 interface RequestData {
     /**

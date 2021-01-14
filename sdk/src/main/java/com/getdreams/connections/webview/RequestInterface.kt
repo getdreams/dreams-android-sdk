@@ -10,7 +10,7 @@ import com.getdreams.Location
 import java.util.Locale
 
 /**
- * Interface for requests to the Dreams PWA.
+ * Interface for requests to the Dreams web app.
  */
 interface RequestInterface {
     /**
@@ -37,7 +37,7 @@ interface RequestInterface {
     fun updateIdToken(requestId: String, idToken: String)
 
     /**
-     * Inform the PWA that an account was provisioned.
+     * Inform the web app that an account was provisioned.
      *
      * @param requestId The request id of the event that triggered the account provisioning.
      */

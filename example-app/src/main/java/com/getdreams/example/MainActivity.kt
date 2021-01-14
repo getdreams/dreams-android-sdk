@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.getdreams.connections.EventListener
 import com.getdreams.events.Event
 import com.getdreams.views.DreamsView
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -46,11 +47,13 @@ class MainActivity : AppCompatActivity() {
                         dreamsView.accountProvisionInitiated(requestId = event.requestId)
                     } else {
                         // Something went wrong with provisioning the account
-                        Toast.makeText(
-                            this@MainActivity,
-                            "Could not provision account",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                            GlobalScope.launch(Dispatchers.Main) {
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    "Could not provision account",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                     }
                 }
             }

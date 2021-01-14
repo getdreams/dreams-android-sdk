@@ -12,9 +12,21 @@ import android.net.Uri
  * Dreams instance.
  */
 class Dreams internal constructor(
-    internal val clientId: String,
-    baseUrl: String
+    internal val configuration: Configuration
 ) {
+    /**
+     * Configuration data for [Dreams].
+     *
+     * @param clientId The client id.
+     * @param baseUrl The endpoint that the sdk should use.
+     */
+    data class Configuration(val clientId: String, val baseUrl: String) {
+        init {
+            require(clientId.isNotEmpty()) { "Client id must be set" }
+            require(baseUrl.isNotEmpty()) { "Base url must not be empty" }
+        }
+    }
+
     /**
      * Dreams singleton object.
      */
@@ -25,14 +37,10 @@ class Dreams internal constructor(
         /**
          * Initialize the Dreams SDK. This must be called before calling [com.getdreams.views.DreamsView].
          *
-         * @param clientId The client id.
-         * @param baseUrl The endpoint that the sdk should use.
+         * @param configuration The configuration to start
          */
         @JvmStatic
-        fun setup(clientId: String, baseUrl: String): Dreams {
-            require(clientId.isNotEmpty()) { "Client id must be set" }
-            require(baseUrl.isNotEmpty()) { "Base url must not be empty" }
-
+        fun configure(configuration: Configuration): Dreams {
             val i = _instance
             if (i != null) {
                 return i
@@ -43,7 +51,7 @@ class Dreams internal constructor(
                 if (syncInstance != null) {
                     syncInstance
                 } else {
-                    val created = Dreams(clientId, baseUrl)
+                    val created = Dreams(configuration)
                     _instance = created
                     created
                 }
@@ -53,7 +61,7 @@ class Dreams internal constructor(
         /**
          * The [Dreams] instance.
          *
-         * @throws IllegalStateException If [Dreams.setup] has not been called.
+         * @throws IllegalStateException If [Dreams.configure] has not been called.
          */
         @JvmStatic
         val instance: Dreams
@@ -69,7 +77,7 @@ class Dreams internal constructor(
                     if (syncInstance != null) {
                         syncInstance
                     } else {
-                        throw IllegalStateException("Dreams.setup() must be called before getting the instance.")
+                        throw IllegalStateException("Dreams.configure() must be called before getting the instance.")
                     }
                 }
             }
@@ -92,5 +100,10 @@ class Dreams internal constructor(
     /**
      * The base [Uri] to load.
      */
-    internal val baseUri: Uri = Uri.parse(baseUrl)
+    internal val baseUri: Uri = Uri.parse(configuration.baseUrl)
+
+    /**
+     * The client id.
+     */
+    internal val clientId: String = configuration.clientId
 }
