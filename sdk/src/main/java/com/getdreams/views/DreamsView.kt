@@ -152,7 +152,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
     internal data class InitResponse(val url: String, val cookies: List<String>?)
 
     /**
-     * Make the initial request to the PWA.
+     * Make the initial request to the web app.
      */
     private fun makeInitRequest(
         uri: Uri,

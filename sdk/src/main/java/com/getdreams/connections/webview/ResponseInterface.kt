@@ -7,7 +7,7 @@
 package com.getdreams.connections.webview
 
 /**
- * Interface for responses from the Dreams PWA.
+ * Interface for responses from the Dreams web app.
  */
 internal interface ResponseInterface {
     /**

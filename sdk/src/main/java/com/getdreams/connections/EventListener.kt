@@ -13,7 +13,7 @@ import com.getdreams.events.Event
  */
 fun interface EventListener {
     /**
-     * Triggered when a [Event] is sent from PWA.
+     * Triggered when a [Event] is sent from the web app.
      *
      * @param event The event that was sent.
      */
