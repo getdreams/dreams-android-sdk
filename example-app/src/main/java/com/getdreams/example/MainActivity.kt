@@ -27,11 +27,11 @@ class MainActivity : AppCompatActivity() {
      */
     private val listener = EventListener { event ->
         when (event) {
-            is Event.IdTokenExpired -> {
+            is Event.CredentialsExpired -> {
                 // Renew the token
                 GlobalScope.launch {
-                    val newToken = FakeBackend.refreshIdToken()
-                    dreamsView.updateIdToken(requestId = event.requestId, idToken = newToken)
+                    val credentials = Credentials(idToken = FakeBackend.refreshIdToken())
+                    dreamsView.updateCredentials(requestId = event.requestId, credentials)
                 }
             }
             is Event.Telemetry -> {

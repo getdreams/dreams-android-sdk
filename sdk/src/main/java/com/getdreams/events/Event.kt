@@ -10,9 +10,9 @@ import org.json.JSONObject
 
 sealed class Event {
     /**
-     * Event sent when token has expired.
+     * Event sent when the user credentials has expired.
      */
-    data class IdTokenExpired(override val requestId: String) : RequestData, Event()
+    data class CredentialsExpired(override val requestId: String) : RequestData, Event()
 
     /**
      * Telemetry event.

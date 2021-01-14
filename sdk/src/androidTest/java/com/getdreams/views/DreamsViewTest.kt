@@ -136,8 +136,8 @@ class DreamsViewTest {
     fun updateIdToken() {
         val latch = CountDownLatch(1)
         activityRule.testResponseEvent("expire_token_button") { event, view ->
-            assertEquals(Event.IdTokenExpired("uuid"), event)
-            view.updateIdToken((event as Event.IdTokenExpired).requestId, "new token")
+            assertEquals(Event.CredentialsExpired("uuid"), event)
+            view.updateCredentials((event as Event.CredentialsExpired).requestId, Credentials("new token"))
             GlobalScope.launch {
                 delay(250)
                 latch.countDown()

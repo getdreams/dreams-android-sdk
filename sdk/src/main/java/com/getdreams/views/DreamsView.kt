@@ -105,7 +105,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
                     val json = JSONTokener(requestData).nextValue() as? JSONObject?
                     val requestId = json?.getString("requestId")
                     if (requestId != null) {
-                        this@DreamsView.onResponse(Event.IdTokenExpired(requestId))
+                        this@DreamsView.onResponse(Event.CredentialsExpired(requestId))
                     }
                 } catch (e: JSONException) {
                     Log.w("Dreams", "Unable to parse request data", e)
@@ -266,10 +266,10 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }
     }
 
-    override fun updateIdToken(requestId: String, idToken: String) {
+    override fun updateCredentials(requestId: String, credentials: Credentials) {
         val jsonData: JSONObject = JSONObject()
             .put("requestId", requestId)
-            .put("idToken", idToken)
+            .put("idToken", credentials.idToken)
         GlobalScope.launch(Dispatchers.Main.immediate) {
             webView.evaluateJavascript("updateIdToken('${jsonData}')") {
                 Log.v("Dreams", "updateIdToken returned $it")

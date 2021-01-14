@@ -100,15 +100,15 @@ dreamsView.registerEventListener { event ->
 
 #### Token renewal
 
-When a token requires renewal a `IdTokenExpired` event will be sent, to set a new token you need to call
- `DreamsView.updateIdToken` with the request id from the event and the new token.
+When a token requires renewal a `CredentialsExpired` event will be sent, to set a new token you need to call
+ `DreamsView.updateCredentials` with the request id from the event and the new token.
 
  ```kotlin
 dreamsView.registerEventListener { event ->
     when (event) {
-        is Event.IdTokenExpired -> {
+        is Event.CredentialsExpired -> {
             val newToken = getValidToken()
-            dreamsView.updateIdToken(requestId = event.requestId, idToken = newToken)
+            dreamsView.updateCredentials(requestId = event.requestId, credentials = Credentials(idToken = newToken))
         }
     }
 }
