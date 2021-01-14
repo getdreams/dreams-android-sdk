@@ -48,13 +48,13 @@ class MainActivity : AppCompatActivity() {
                         dreamsView.accountProvisionInitiated(requestId = event.requestId)
                     } else {
                         // Something went wrong with provisioning the account
-                            GlobalScope.launch(Dispatchers.Main) {
-                                Toast.makeText(
-                                    this@MainActivity,
-                                    "Could not provision account",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                        GlobalScope.launch(Dispatchers.Main) {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Could not provision account",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 }
             }
