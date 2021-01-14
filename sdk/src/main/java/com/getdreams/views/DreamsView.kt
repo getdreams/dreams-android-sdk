@@ -165,23 +165,30 @@ class DreamsView : FrameLayout, DreamsViewInterface {
                 .build()
                 .toString()
         )
-        try {
-            (url.openConnection() as? HttpURLConnection)?.run {
-                requestMethod = "POST"
-                setRequestProperty("Content-Type", "application/json; utf-8")
-                setRequestProperty("Accept", "application/json")
-                doOutput = true
-                doInput = false
-                instanceFollowRedirects = false
+        val connection = try {
+            url.openConnection() as? HttpURLConnection? ?: throw NullPointerException("Connection was null")
+        } catch (e: Exception) {
+            return Result.Error(e)
+        }
 
+        connection.apply {
+            requestMethod = "POST"
+            setRequestProperty("Content-Type", "application/json; utf-8")
+            setRequestProperty("Accept", "application/json")
+            doOutput = true
+            doInput = false
+            instanceFollowRedirects = false
+        }
+
+        return try {
+            with(connection) {
                 outputStream.write(jsonBody.toString().toByteArray())
-                Log.v("Dreams", "Got code: $responseCode")
-
-                return when (responseCode) {
+                Log.v("Dreams", "Init returned $responseCode ($responseMessage)")
+                when (connection.responseCode) {
                     HTTP_MOVED_PERM, HTTP_MOVED_TEMP, HTTP_SEE_OTHER -> {
                         getHeaderField("Location")?.let {
                             Result.Success(InitResponse(it, headerFields["Set-Cookie"]?.filterNotNull()))
-                        } ?: Result.Error(Exception("No location header"))
+                        } ?: Result.Error(RuntimeException("No location header from init"))
                     }
                     HTTP_OK -> {
                         Result.Success(InitResponse(getURL().toString(), headerFields["Set-Cookie"]?.filterNotNull()))
@@ -189,9 +196,10 @@ class DreamsView : FrameLayout, DreamsViewInterface {
                     else -> Result.Error(Exception("Unexpected response code: $responseCode ($responseMessage)"))
                 }
             }
-            return Result.Error(Exception("Cannot open HttpURLConnection"))
         } catch (e: Exception) {
-            return Result.Error(Exception("Network request failed", e))
+            Result.Error(e)
+        } finally {
+            connection.disconnect()
         }
     }
 
@@ -221,7 +229,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
                 }
             }
             is Result.Error -> {
-                Log.e("Dreams", "Unable to initialize PWA", result.exception)
+                Log.e("Dreams", "Unable to initialize web app", result.exception)
                 null
             }
         }
