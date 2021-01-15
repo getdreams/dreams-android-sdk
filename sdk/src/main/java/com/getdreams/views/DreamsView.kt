@@ -31,6 +31,7 @@ import java.net.URL
 import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
 import com.getdreams.Result
+import com.getdreams.Credentials
 import com.getdreams.events.Event
 import org.json.JSONException
 import org.json.JSONTokener
@@ -104,7 +105,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
                     val json = JSONTokener(requestData).nextValue() as? JSONObject?
                     val requestId = json?.getString("requestId")
                     if (requestId != null) {
-                        this@DreamsView.onResponse(Event.IdTokenExpired(requestId))
+                        this@DreamsView.onResponse(Event.CredentialsExpired(requestId))
                     }
                 } catch (e: JSONException) {
                     Log.w("Dreams", "Unable to parse request data", e)
@@ -235,7 +236,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }
     }
 
-    override fun open(idToken: String, location: String, locale: Locale?) {
+    override fun launch(credentials: Credentials, location: String, locale: Locale?) {
         val posixLocale = locale?.posix ?: with(resources.configuration) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 locales[0] ?: Locale.ROOT
@@ -246,7 +247,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }.posix
 
         GlobalScope.launch {
-            val url = getUrl(Dreams.instance.clientId, idToken, posixLocale)
+            val url = getUrl(Dreams.instance.clientId, credentials.idToken, posixLocale)
             withContext(Dispatchers.Main) {
                 if (url != null) {
                     webView.loadUrl(url)
@@ -265,10 +266,10 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }
     }
 
-    override fun updateIdToken(requestId: String, idToken: String) {
+    override fun updateCredentials(requestId: String, credentials: Credentials) {
         val jsonData: JSONObject = JSONObject()
             .put("requestId", requestId)
-            .put("idToken", idToken)
+            .put("idToken", credentials.idToken)
         GlobalScope.launch(Dispatchers.Main.immediate) {
             webView.evaluateJavascript("updateIdToken('${jsonData}')") {
                 Log.v("Dreams", "updateIdToken returned $it")

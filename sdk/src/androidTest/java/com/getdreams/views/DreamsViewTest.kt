@@ -9,6 +9,7 @@ package com.getdreams.views
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import com.getdreams.Credentials
 import com.getdreams.Dreams
 import com.getdreams.R
 import com.getdreams.TestActivity
@@ -71,12 +72,10 @@ class DreamsViewTest {
 
     @Test
     fun open() {
-        server.dispatcher = MockDreamsDispatcher(server)
-
         val latch = CountDownLatch(1)
         activityRule.scenario.onActivity {
             val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
-            dreamsView.open("id token", locale = Locale.CANADA_FRENCH)
+            dreamsView.launch(Credentials("id token"), locale = Locale.CANADA_FRENCH)
             dreamsView.registerEventListener { event ->
                 when (event) {
                     is Event.Telemetry -> {
@@ -109,7 +108,7 @@ class DreamsViewTest {
         val latch = CountDownLatch(1)
         activityRule.scenario.onActivity {
             val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
-            dreamsView.open("token")
+            dreamsView.launch(Credentials("token"))
             dreamsView.registerEventListener { event ->
                 when (event) {
                     is Event.Telemetry -> {
@@ -137,8 +136,8 @@ class DreamsViewTest {
     fun updateIdToken() {
         val latch = CountDownLatch(1)
         activityRule.testResponseEvent("expire_token_button") { event, view ->
-            assertEquals(Event.IdTokenExpired("uuid"), event)
-            view.updateIdToken((event as Event.IdTokenExpired).requestId, "new token")
+            assertEquals(Event.CredentialsExpired("uuid"), event)
+            view.updateCredentials((event as Event.CredentialsExpired).requestId, Credentials("new token"))
             GlobalScope.launch {
                 delay(250)
                 latch.countDown()

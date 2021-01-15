@@ -9,6 +9,7 @@ package com.getdreams.example
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.getdreams.Credentials
 import com.getdreams.connections.EventListener
 import com.getdreams.events.Event
 import com.getdreams.views.DreamsView
@@ -26,11 +27,11 @@ class MainActivity : AppCompatActivity() {
      */
     private val listener = EventListener { event ->
         when (event) {
-            is Event.IdTokenExpired -> {
+            is Event.CredentialsExpired -> {
                 // Renew the token
                 GlobalScope.launch {
-                    val newToken = FakeBackend.refreshIdToken()
-                    dreamsView.updateIdToken(requestId = event.requestId, idToken = newToken)
+                    val credentials = Credentials(idToken = FakeBackend.refreshIdToken())
+                    dreamsView.updateCredentials(requestId = event.requestId, credentials)
                 }
             }
             is Event.Telemetry -> {
@@ -47,13 +48,13 @@ class MainActivity : AppCompatActivity() {
                         dreamsView.accountProvisionInitiated(requestId = event.requestId)
                     } else {
                         // Something went wrong with provisioning the account
-                            GlobalScope.launch(Dispatchers.Main) {
-                                Toast.makeText(
-                                    this@MainActivity,
-                                    "Could not provision account",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                        GlobalScope.launch(Dispatchers.Main) {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Could not provision account",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 }
             }
@@ -67,7 +68,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        dreamsView.open("token")
+        dreamsView.launch(Credentials("token"))
         dreamsView.registerEventListener(listener)
     }
 

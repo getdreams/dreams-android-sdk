@@ -7,6 +7,7 @@
 package com.getdreams.connections.webview
 
 import com.getdreams.Location
+import com.getdreams.Credentials
 import java.util.Locale
 
 /**
@@ -14,12 +15,13 @@ import java.util.Locale
  */
 interface RequestInterface {
     /**
-     * Open Dreams at [location].
+     * Launch Dreams at [location].
      *
-     * @param idToken The token used to authenticate.
+     * @param credentials Credentials used to authenticate the user.
      * @param location What screen to open, by default `home`.
+     * @param locale If set overrides the user locale.
      */
-    fun open(idToken: String, location: String = Location.Home.value, locale: Locale? = null)
+    fun launch(credentials: Credentials, location: String = Location.Home.value, locale: Locale? = null)
 
     /**
      * Set the locale used in Dreams.
@@ -32,9 +34,9 @@ interface RequestInterface {
      * Update the id token.
      *
      * @param requestId The request id of the event that informed that the token was expired.
-     * @param idToken The new id token.
+     * @param credentials The new credentials to use.
      */
-    fun updateIdToken(requestId: String, idToken: String)
+    fun updateCredentials(requestId: String, credentials: Credentials)
 
     /**
      * Inform the web app that an account was provisioned.

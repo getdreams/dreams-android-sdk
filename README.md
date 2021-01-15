@@ -72,7 +72,7 @@ class ExampleApp : Application() {
 }
 ```
 
-To show Dreams simply add `DreamsView` to a layout, and then call `DreamsView.open()`.
+To show Dreams simply add `DreamsView` to a layout, and then call `DreamsView.launch()`.
 
 ```xml
 <com.getdreams.views.DreamsView
@@ -83,7 +83,7 @@ To show Dreams simply add `DreamsView` to a layout, and then call `DreamsView.op
 
 ```kotlin
 val dreamsView: DreamsView = findViewById<DreamsView>(R.id.dreams)
-dreamsView.open(accessToken = "user token", location = Location.Home, locale = null)
+dreamsView.launch(Dreams.Credentials(idToken = "user token"))
 ```
 
 ### Events
@@ -100,15 +100,15 @@ dreamsView.registerEventListener { event ->
 
 #### Token renewal
 
-When a token requires renewal a `IdTokenExpired` event will be sent, to set a new token you need to call
- `DreamsView.updateIdToken` with the request id from the event and the new token.
+When a token requires renewal a `CredentialsExpired` event will be sent, to set a new token you need to call
+ `DreamsView.updateCredentials` with the request id from the event and the new token.
 
  ```kotlin
 dreamsView.registerEventListener { event ->
     when (event) {
-        is Event.IdTokenExpired -> {
+        is Event.CredentialsExpired -> {
             val newToken = getValidToken()
-            dreamsView.updateIdToken(requestId = event.requestId, idToken = newToken)
+            dreamsView.updateCredentials(requestId = event.requestId, credentials = Credentials(idToken = newToken))
         }
     }
 }

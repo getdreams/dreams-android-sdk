@@ -26,7 +26,7 @@
         console.assert(obj.hasOwnProperty('requestId'), 'missing request id');
         return obj.hasOwnProperty('idToken') && obj.hasOwnProperty('requestId');
     }
-    function accountProvisioned() {
+    function accountProvisionInitiated() {
         return "OK";
     }
     function onEvent(name, location) {
