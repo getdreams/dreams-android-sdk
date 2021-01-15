@@ -46,7 +46,7 @@ inline fun ActivityScenarioRule<TestActivity>.testResponseEvent(
     val contentLatch = CountDownLatch(1)
     scenario.onActivity { activity ->
         val dreamsView = activity.findViewById<DreamsView>(R.id.dreams)
-        dreamsView.open(Credentials("token"))
+        dreamsView.launch(Credentials("token"))
         dreamsView.registerEventListener { event ->
             when (event) {
                 is Event.Telemetry -> {

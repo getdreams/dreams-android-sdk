@@ -15,12 +15,13 @@ import java.util.Locale
  */
 interface RequestInterface {
     /**
-     * Open Dreams at [location].
+     * Launch Dreams at [location].
      *
      * @param credentials Credentials used to authenticate the user.
      * @param location What screen to open, by default `home`.
+     * @param locale If set overrides the user locale.
      */
-    fun open(credentials: Credentials, location: String = Location.Home.value, locale: Locale? = null)
+    fun launch(credentials: Credentials, location: String = Location.Home.value, locale: Locale? = null)
 
     /**
      * Set the locale used in Dreams.

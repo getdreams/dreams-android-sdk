@@ -75,7 +75,7 @@ class DreamsViewTest {
         val latch = CountDownLatch(1)
         activityRule.scenario.onActivity {
             val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
-            dreamsView.open(Credentials("id token"), locale = Locale.CANADA_FRENCH)
+            dreamsView.launch(Credentials("id token"), locale = Locale.CANADA_FRENCH)
             dreamsView.registerEventListener { event ->
                 when (event) {
                     is Event.Telemetry -> {
@@ -108,7 +108,7 @@ class DreamsViewTest {
         val latch = CountDownLatch(1)
         activityRule.scenario.onActivity {
             val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
-            dreamsView.open(Credentials("token"))
+            dreamsView.launch(Credentials("token"))
             dreamsView.registerEventListener { event ->
                 when (event) {
                     is Event.Telemetry -> {

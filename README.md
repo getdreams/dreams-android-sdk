@@ -72,7 +72,7 @@ class ExampleApp : Application() {
 }
 ```
 
-To show Dreams simply add `DreamsView` to a layout, and then call `DreamsView.open()`.
+To show Dreams simply add `DreamsView` to a layout, and then call `DreamsView.launch()`.
 
 ```xml
 <com.getdreams.views.DreamsView
@@ -83,7 +83,7 @@ To show Dreams simply add `DreamsView` to a layout, and then call `DreamsView.op
 
 ```kotlin
 val dreamsView: DreamsView = findViewById<DreamsView>(R.id.dreams)
-dreamsView.open(Dreams.Credentials(idToken = "user token"), location = Location.Home, locale = null)
+dreamsView.launch(Dreams.Credentials(idToken = "user token"))
 ```
 
 ### Events

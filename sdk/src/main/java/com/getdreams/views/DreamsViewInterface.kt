@@ -21,9 +21,10 @@ interface DreamsViewInterface : RequestInterface {
      *
      * @param credentials Credentials used to authenticate the user.
      * @param location What screen to open.
+     * @param locale If set overrides the user locale.
      */
-    fun open(credentials: Credentials, location: Location, locale: Locale? = null) {
-        open(credentials, location.value, locale)
+    fun launch(credentials: Credentials, location: Location, locale: Locale? = null) {
+        launch(credentials, location.value, locale)
     }
 
     /**

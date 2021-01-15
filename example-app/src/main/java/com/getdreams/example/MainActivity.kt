@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        dreamsView.open(Credentials("token"))
+        dreamsView.launch(Credentials("token"))
         dreamsView.registerEventListener(listener)
     }
 

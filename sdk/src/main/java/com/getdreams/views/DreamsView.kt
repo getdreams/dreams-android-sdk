@@ -236,7 +236,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }
     }
 
-    override fun open(credentials: Credentials, location: String, locale: Locale?) {
+    override fun launch(credentials: Credentials, location: String, locale: Locale?) {
         val posixLocale = locale?.posix ?: with(resources.configuration) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 locales[0] ?: Locale.ROOT
