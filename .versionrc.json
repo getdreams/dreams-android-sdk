@@ -1,0 +1,59 @@
+{
+  "tag-prefix": "",
+  "sign": true,
+  "preMajor": true,
+  "skip": {
+    "bump": false,
+    "changelog": false,
+    "tag": false,
+    "commit": false
+  },
+  "header": "# Changelog\n\nAll notable changes to this library will be documented here.\n",
+  "path": "sdk",
+  "types": [
+    {
+      "type": "feat",
+      "section": "Features"
+    },
+    {
+      "type": "fix",
+      "section": "Bug Fixes"
+    },
+    {
+      "type": "chore",
+      "hidden": true
+    },
+    {
+      "type": "docs",
+      "hidden": true
+    },
+    {
+      "type": "style",
+      "hidden": true
+    },
+    {
+      "type": "refactor",
+      "section": "Refactors",
+      "hidden": true
+    },
+    {
+      "type": "perf",
+      "hidden": true
+    },
+    {
+      "type": "test",
+      "hidden": true
+    }
+  ],
+  "bumpFiles": [
+    {
+      "filename": "README.md",
+      "updater": "tools/readme-version-updater.js"
+    },
+    {
+      "filename": "sdk/build.gradle",
+      "updater": "tools/sdk-version-updater.js"
+    }
+  ],
+  "packageFiles": []
+}

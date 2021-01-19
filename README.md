@@ -140,6 +140,16 @@ You can generate documentation by running the relevant Dokka task.
 
 Simply clone the repo and open the project in Android Studio 4.0 or later.
 
+### Preparing a Release
+
+Simplest way is to use [standard-version](https://github.com/conventional-changelog/standard-version#cli-usage), with it you just need to run:
+
+```shell script
+npx standard-version
+```
+
+Or manually update the versions in [sdk/build.gradle](./sdk/build.gradle) and [README.md](./README.md). Then make a release tag.
+
 ### Publishing
 
 To publish the library to your local maven, simply run:
@@ -155,4 +165,10 @@ To publish to you need to add signing key details when running the publishing ta
 ```properties
 signing.gnupg.keyName=<key>
 signing.gnupg.passphrase=<pass>
+```
+
+To publish a new package to GitHub you can run:
+
+```shell script
+./gradlew sdk:publishReleasePublicationToGitHubPackagesRepository
 ```
