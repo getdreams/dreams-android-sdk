@@ -166,3 +166,9 @@ To publish to you need to add signing key details when running the publishing ta
 signing.gnupg.keyName=<key>
 signing.gnupg.passphrase=<pass>
 ```
+
+To publish a new package to GitHub you can run:
+
+```shell script
+./gradlew sdk:publishReleasePublicationToGitHubPackagesRepository
+```
