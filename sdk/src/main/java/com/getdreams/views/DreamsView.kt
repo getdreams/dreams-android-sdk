@@ -32,6 +32,8 @@ import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
 import com.getdreams.Result
 import com.getdreams.Credentials
+import com.getdreams.Result.Companion.failure
+import com.getdreams.Result.Companion.success
 import com.getdreams.events.Event
 import org.json.JSONException
 import org.json.JSONTokener
@@ -158,7 +160,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
     private fun makeInitRequest(
         uri: Uri,
         jsonBody: JSONObject
-    ): Result<InitResponse> {
+    ): Result<InitResponse, Throwable> {
         val url = URL(
             uri.buildUpon()
                 .appendPath("users")
@@ -169,7 +171,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         val connection = try {
             url.openConnection() as? HttpURLConnection? ?: throw NullPointerException("Connection was null")
         } catch (e: Exception) {
-            return Result.Error(e)
+            return failure(e)
         }
 
         connection.apply {
@@ -188,17 +190,17 @@ class DreamsView : FrameLayout, DreamsViewInterface {
                 when (connection.responseCode) {
                     HTTP_MOVED_PERM, HTTP_MOVED_TEMP, HTTP_SEE_OTHER -> {
                         getHeaderField("Location")?.let {
-                            Result.Success(InitResponse(it, headerFields["Set-Cookie"]?.filterNotNull()))
-                        } ?: Result.Error(RuntimeException("No location header from init"))
+                            success(InitResponse(it, headerFields["Set-Cookie"]?.filterNotNull()))
+                        } ?: failure(RuntimeException("No location header from init"))
                     }
                     HTTP_OK -> {
-                        Result.Success(InitResponse(getURL().toString(), headerFields["Set-Cookie"]?.filterNotNull()))
+                        success(InitResponse(getURL().toString(), headerFields["Set-Cookie"]?.filterNotNull()))
                     }
-                    else -> Result.Error(Exception("Unexpected response code: $responseCode ($responseMessage)"))
+                    else -> failure(Exception("Unexpected response code: $responseCode ($responseMessage)"))
                 }
             }
         } catch (e: Exception) {
-            Result.Error(e)
+            failure(e)
         } finally {
             connection.disconnect()
         }
@@ -217,7 +219,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }
         return when (result) {
             is Result.Success<InitResponse> -> {
-                with(result.data) {
+                with(result.value) {
                     // If we got a cookie set it now
                     if (!cookies.isNullOrEmpty()) {
                         val cookieManager = CookieManager.getInstance()
@@ -229,8 +231,8 @@ class DreamsView : FrameLayout, DreamsViewInterface {
                     return@with url
                 }
             }
-            is Result.Error -> {
-                Log.e("Dreams", "Unable to initialize web app", result.exception)
+            is Result.Failure -> {
+                Log.e("Dreams", "Unable to initialize web app", result.error)
                 null
             }
         }
