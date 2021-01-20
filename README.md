@@ -1,5 +1,7 @@
 # Dreams Android SDK
 
+![Dreams](docs/assets/dreams.jpg)
+
 ## Requirements
 
 * Minimum Android SDK version: 21
