@@ -7,7 +7,6 @@
 package com.getdreams.connections.webview
 
 import android.util.Log
-import com.getdreams.Location
 import com.getdreams.Credentials
 import java.util.Locale
 import com.getdreams.Result
@@ -24,16 +23,14 @@ interface RequestInterface {
         fun onResult(result: Result<Unit, LaunchError>)
     }
     /**
-     * Launch Dreams at [location].
+     * Launch Dreams.
      *
      * @param credentials Credentials used to authenticate the user.
-     * @param location What screen to open, by default `home`.
      * @param locale If set overrides the user locale.
      * @param onCompletion Called when [launch] has completed.
      */
     fun launch(
         credentials: Credentials,
-        location: String = Location.Home.value,
         locale: Locale? = null,
         onCompletion: OnLaunchCompletion = OnLaunchCompletion {
             if (it is Result.Failure) {

@@ -6,27 +6,13 @@
 
 package com.getdreams.views
 
-import com.getdreams.Credentials
-import com.getdreams.Location
 import com.getdreams.connections.EventListener
 import com.getdreams.connections.webview.RequestInterface
-import java.util.Locale
 
 /**
  * Interface for [DreamsView].
  */
 interface DreamsViewInterface : RequestInterface {
-    /**
-     * Open Dreams at [location].
-     *
-     * @param credentials Credentials used to authenticate the user.
-     * @param location What screen to open.
-     * @param locale If set overrides the user locale.
-     */
-    fun launch(credentials: Credentials, location: Location, locale: Locale? = null) {
-        launch(credentials, location.value, locale)
-    }
-
     /**
      * Listen to events from Dreams.
      *
