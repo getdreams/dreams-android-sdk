@@ -16,31 +16,36 @@ import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.widget.FrameLayout
+import com.getdreams.Credentials
 import com.getdreams.Dreams
+import com.getdreams.Result
+import com.getdreams.Result.Companion.failure
+import com.getdreams.Result.Companion.success
 import com.getdreams.connections.EventListener
+import com.getdreams.connections.webview.LaunchError
+import com.getdreams.connections.webview.RequestInterface.OnLaunchCompletion
 import com.getdreams.connections.webview.ResponseInterface
+import com.getdreams.events.Event
 import com.getdreams.posix
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONException
 import org.json.JSONObject
+import org.json.JSONTokener
 import java.io.File
 import java.net.HttpURLConnection
+import java.net.HttpURLConnection.HTTP_BAD_REQUEST
+import java.net.HttpURLConnection.HTTP_INTERNAL_ERROR
+import java.net.HttpURLConnection.HTTP_MOVED_PERM
+import java.net.HttpURLConnection.HTTP_MOVED_TEMP
+import java.net.HttpURLConnection.HTTP_NOT_MODIFIED
+import java.net.HttpURLConnection.HTTP_OK
+import java.net.HttpURLConnection.HTTP_SEE_OTHER
 import java.net.URL
 import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
-import com.getdreams.Result
-import com.getdreams.Credentials
-import com.getdreams.Result.Companion.failure
-import com.getdreams.Result.Companion.success
-import com.getdreams.events.Event
-import org.json.JSONException
-import org.json.JSONTokener
-import java.net.HttpURLConnection.HTTP_MOVED_PERM
-import java.net.HttpURLConnection.HTTP_MOVED_TEMP
-import java.net.HttpURLConnection.HTTP_OK
-import java.net.HttpURLConnection.HTTP_SEE_OTHER
 
 /**
  * The main view to present Dreams to users.
@@ -157,10 +162,10 @@ class DreamsView : FrameLayout, DreamsViewInterface {
     /**
      * Make the initial request to the web app.
      */
-    private fun makeInitRequest(
+    private fun verifyTokenRequest(
         uri: Uri,
         jsonBody: JSONObject
-    ): Result<InitResponse, Throwable> {
+    ): Result<InitResponse, LaunchError> {
         val url = URL(
             uri.buildUpon()
                 .appendPath("users")
@@ -171,7 +176,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         val connection = try {
             url.openConnection() as? HttpURLConnection? ?: throw NullPointerException("Connection was null")
         } catch (e: Exception) {
-            return failure(e)
+            return failure(LaunchError.UnexpectedError("Unable to open connection", e))
         }
 
         connection.apply {
@@ -186,41 +191,67 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         return try {
             with(connection) {
                 outputStream.write(jsonBody.toString().toByteArray())
-                Log.v("Dreams", "Init returned $responseCode ($responseMessage)")
                 when (connection.responseCode) {
-                    HTTP_MOVED_PERM, HTTP_MOVED_TEMP, HTTP_SEE_OTHER -> {
+                    HTTP_MOVED_PERM, HTTP_MOVED_TEMP, HTTP_SEE_OTHER, HTTP_NOT_MODIFIED, 307, 308 -> {
                         getHeaderField("Location")?.let {
                             success(InitResponse(it, headerFields["Set-Cookie"]?.filterNotNull()))
-                        } ?: failure(RuntimeException("No location header from init"))
+                        } ?: failure(
+                            LaunchError.UnexpectedError(
+                                message = "Location header missing in $responseCode ($responseMessage)",
+                                cause = RuntimeException("No location header in redirection response")
+                            )
+                        )
                     }
-                    HTTP_OK -> {
+                    in HTTP_OK..299 -> {
                         success(InitResponse(getURL().toString(), headerFields["Set-Cookie"]?.filterNotNull()))
                     }
-                    else -> failure(Exception("Unexpected response code: $responseCode ($responseMessage)"))
+                    422 -> {
+                        failure(LaunchError.InvalidCredentials(message = "Invalid token", cause = null))
+                    }
+                    in HTTP_BAD_REQUEST..499, HTTP_INTERNAL_ERROR -> {
+                        failure(
+                            LaunchError.HttpError(
+                                responseCode,
+                                message = "Got message: $responseMessage",
+                                cause = null
+                            )
+                        )
+                    }
+                    else -> failure(
+                        LaunchError.HttpError(
+                            responseCode,
+                            message = "Got message: $responseMessage",
+                            cause = null
+                        )
+                    )
                 }
             }
         } catch (e: Exception) {
-            failure(e)
+            failure(LaunchError.UnexpectedError(e.message ?: "Unknown error when trying to verify credentials", e))
         } finally {
             connection.disconnect()
         }
     }
 
-    private suspend fun getUrl(clientId: String, idToken: String, posixLocale: String): String? {
+    private suspend fun initializeWebApp(
+        clientId: String,
+        idToken: String,
+        posixLocale: String
+    ): Result<String, LaunchError> {
         val jsonBody = JSONObject()
             .put("client_id", clientId)
             .put("token", idToken)
             .put("locale", posixLocale)
         val result = withContext(Dispatchers.IO) {
-            makeInitRequest(
+            verifyTokenRequest(
                 Dreams.instance.baseUri,
                 jsonBody
             )
         }
         return when (result) {
-            is Result.Success<InitResponse> -> {
+            is Result.Success -> {
                 with(result.value) {
-                    // If we got a cookie set it now
+                    // If we got cookies, set them now
                     if (!cookies.isNullOrEmpty()) {
                         val cookieManager = CookieManager.getInstance()
                         cookieManager.setAcceptCookie(true)
@@ -228,17 +259,21 @@ class DreamsView : FrameLayout, DreamsViewInterface {
                             cookieManager.setCookie(url, cookie)
                         }
                     }
-                    return@with url
+                    return@with success(url)
                 }
             }
             is Result.Failure -> {
-                Log.e("Dreams", "Unable to initialize web app", result.error)
-                null
+                failure(result.error)
             }
         }
     }
 
-    override fun launch(credentials: Credentials, location: String, locale: Locale?) {
+    override fun launch(
+        credentials: Credentials,
+        location: String,
+        locale: Locale?,
+        onCompletion: OnLaunchCompletion
+    ) {
         val posixLocale = locale?.posix ?: with(resources.configuration) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 locales[0] ?: Locale.ROOT
@@ -249,10 +284,15 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }.posix
 
         GlobalScope.launch {
-            val url = getUrl(Dreams.instance.clientId, credentials.idToken, posixLocale)
-            withContext(Dispatchers.Main) {
-                if (url != null) {
-                    webView.loadUrl(url)
+            when (val result = initializeWebApp(Dreams.instance.clientId, credentials.idToken, posixLocale)) {
+                is Result.Success -> {
+                    withContext(Dispatchers.Main) {
+                        webView.loadUrl(result.value)
+                    }
+                    onCompletion.onResult(success(Unit))
+                }
+                is Result.Failure -> {
+                    onCompletion.onResult(failure(result.error))
                 }
             }
         }
