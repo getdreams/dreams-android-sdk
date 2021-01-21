@@ -7,10 +7,14 @@
 package com.getdreams.example
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.getdreams.Credentials
+import com.getdreams.Result
 import com.getdreams.connections.EventListener
+import com.getdreams.connections.webview.LaunchError
 import com.getdreams.events.Event
 import com.getdreams.views.DreamsView
 import kotlinx.coroutines.Dispatchers
@@ -68,7 +72,37 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        dreamsView.launch(Credentials("token"))
+
+        // Show that we are loading content
+        val dialog = AlertDialog.Builder(this)
+            .setCancelable(false)
+            .setMessage("Loading Dreams...")
+            .show()
+
+        dreamsView.launch(Credentials("token")) { result ->
+            when (result) {
+                is Result.Success -> {
+                    // Dreams was launched, dismiss loading indicator
+                    Log.v("ExampleApp", "Launch was successful")
+                    dialog.dismiss()
+                }
+                is Result.Failure -> {
+                    // Something went wrong, handle the error
+                    Log.w("ExampleApp", "Launch failed with ${result.error.message}", result.error.cause)
+
+                    val message = when (val e = result.error) {
+                        is LaunchError.InvalidCredentials -> e.message
+                        is LaunchError.HttpError -> "HTTP Error ${e.responseCode}\n${e.message}"
+                        is LaunchError.UnexpectedError -> e.message
+                    }
+
+                    GlobalScope.launch(Dispatchers.Main) {
+                        dialog.setMessage(message)
+                        dialog.setCancelable(true)
+                    }
+                }
+            }
+        }
         dreamsView.registerEventListener(listener)
     }
 
