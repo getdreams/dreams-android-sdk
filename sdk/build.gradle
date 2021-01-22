@@ -59,6 +59,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     androidTestImplementation 'androidx.test.espresso:espresso-web:3.3.0'
     androidTestImplementation 'com.squareup.okhttp3:mockwebserver:4.9.0'
+    //noinspection GradleDependency 1.10.5 does not work on api 30 emulators https://github.com/mockk/mockk/issues/519
+    androidTestImplementation 'io.mockk:mockk-android:1.10.0'
 }
 
 tasks.findAll { it.name.contains("dokka") }.forEach {

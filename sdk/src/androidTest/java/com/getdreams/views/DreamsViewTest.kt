@@ -12,10 +12,16 @@ import androidx.test.filters.LargeTest
 import com.getdreams.Credentials
 import com.getdreams.Dreams
 import com.getdreams.R
+import com.getdreams.Result
 import com.getdreams.TestActivity
+import com.getdreams.connections.webview.LaunchError
+import com.getdreams.connections.webview.RequestInterface
 import com.getdreams.events.Event
 import com.getdreams.test.utils.getInputStreamFromAssets
 import com.getdreams.test.utils.testResponseEvent
+import io.mockk.confirmVerified
+import io.mockk.spyk
+import io.mockk.verify
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -24,6 +30,7 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import okio.Buffer
+import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -48,9 +55,24 @@ class DreamsViewTest {
     class MockDreamsDispatcher(private val server: MockWebServer) : Dispatcher() {
         override fun dispatch(request: RecordedRequest): MockResponse {
             return when (request.path) {
-                "/users/verify_token" -> MockResponse()
-                    .setResponseCode(302)
-                    .addHeader("Location", server.url("/index").toString())
+                "/users/verify_token" -> {
+                    val params = try {
+                        JSONObject(request.body.copy().readUtf8())
+                    } catch (e: Exception) {
+                        JSONObject()
+                    }
+                    when (params.getString("token")) {
+                        "fail_auth" -> {
+                            return MockResponse().setResponseCode(422)
+                        }
+                        "internal_error" -> {
+                            return MockResponse().setResponseCode(500)
+                        }
+                        else -> MockResponse()
+                            .setResponseCode(302)
+                            .addHeader("Location", server.url("/index").toString())
+                    }
+                }
                 "/index" -> MockResponse()
                     .setResponseCode(200)
                     .setBody(Buffer().readFrom(getInputStreamFromAssets("index.html")))
@@ -71,11 +93,14 @@ class DreamsViewTest {
     }
 
     @Test
-    fun open() {
+    fun launch() {
         val latch = CountDownLatch(1)
+
+        val onLaunchCompletion = spyk(RequestInterface.OnLaunchCompletion {})
+
         activityRule.scenario.onActivity {
             val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
-            dreamsView.launch(Credentials("id token"), locale = Locale.CANADA_FRENCH)
+            dreamsView.launch(Credentials("id token"), locale = Locale.CANADA_FRENCH, onLaunchCompletion)
             dreamsView.registerEventListener { event ->
                 when (event) {
                     is Event.Telemetry -> {
@@ -98,9 +123,66 @@ class DreamsViewTest {
         val expectedBody = """{"client_id":"clientId","token":"id token","locale":"fr_CA"}"""
         assertEquals(expectedBody, initPost.body.readUtf8())
 
+        verify { onLaunchCompletion.onResult(Result.success(Unit)) }
+        confirmVerified(onLaunchCompletion)
+
         val urlLoad = server.takeRequest()
         assertEquals("/index", urlLoad.path)
         assertEquals("GET", urlLoad.method)
+    }
+
+    @Test
+    fun launchWithInvalidCredentials() {
+        val onLaunchCompletion = spyk(RequestInterface.OnLaunchCompletion {})
+
+        activityRule.scenario.onActivity {
+            val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
+            dreamsView.launch(Credentials("fail_auth"), locale = Locale.CANADA_FRENCH, onLaunchCompletion)
+        }
+
+        val initPost = server.takeRequest()
+        assertEquals("/users/verify_token", initPost.path)
+        assertEquals("POST", initPost.method)
+        assertEquals("application/json; utf-8", initPost.getHeader("Content-Type"))
+        assertEquals("application/json", initPost.getHeader("Accept"))
+        val expectedBody = """{"client_id":"clientId","token":"fail_auth","locale":"fr_CA"}"""
+        assertEquals(expectedBody, initPost.body.readUtf8())
+
+        verify {
+            onLaunchCompletion.onResult(
+                match {
+                    it is Result.Failure && it.error is LaunchError.InvalidCredentials
+                }
+            )
+        }
+        confirmVerified(onLaunchCompletion)
+    }
+
+    @Test
+    fun launchServerError() {
+        val onLaunchCompletion = spyk(RequestInterface.OnLaunchCompletion {})
+
+        activityRule.scenario.onActivity {
+            val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
+            dreamsView.launch(Credentials("internal_error"), locale = Locale.CANADA_FRENCH, onLaunchCompletion)
+        }
+
+        val initPost = server.takeRequest()
+        assertEquals("/users/verify_token", initPost.path)
+        assertEquals("POST", initPost.method)
+        assertEquals("application/json; utf-8", initPost.getHeader("Content-Type"))
+        assertEquals("application/json", initPost.getHeader("Accept"))
+        val expectedBody = """{"client_id":"clientId","token":"internal_error","locale":"fr_CA"}"""
+        assertEquals(expectedBody, initPost.body.readUtf8())
+
+        verify {
+            onLaunchCompletion.onResult(
+                match {
+                    it is Result.Failure && it.error.let { e -> e is LaunchError.HttpError && e.responseCode == 500 }
+                }
+            )
+        }
+        confirmVerified(onLaunchCompletion)
     }
 
     @Test
