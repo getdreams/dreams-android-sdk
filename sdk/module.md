@@ -14,6 +14,10 @@ This package contains views needed to show Dreams.
 
 Contains connection related interfaces and classes. Such as listeners.
 
+# Package com.getdreams.connections.webview
+
+Classes related to the webview connection.
+
 # Package com.getdreams.events
 
 Has event related classes, such as event types.

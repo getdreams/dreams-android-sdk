@@ -16,6 +16,9 @@ import com.getdreams.Result
  * Interface for requests to the Dreams web app.
  */
 interface RequestInterface {
+    /**
+     * Functional interface for recieving the result of a launch call.
+     */
     fun interface OnLaunchCompletion {
         /**
          * Called with the result of the launch call.
