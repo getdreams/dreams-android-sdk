@@ -133,7 +133,8 @@ class DreamsViewTest {
 
     @Test
     fun launchWithInvalidCredentials() {
-        val onLaunchCompletion = spyk(RequestInterface.OnLaunchCompletion {})
+        val launchLatch = CountDownLatch(1)
+        val onLaunchCompletion = spyk(RequestInterface.OnLaunchCompletion { launchLatch.countDown() })
 
         activityRule.scenario.onActivity {
             val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
@@ -148,6 +149,8 @@ class DreamsViewTest {
         val expectedBody = """{"client_id":"clientId","token":"fail_auth","locale":"fr_CA"}"""
         assertEquals(expectedBody, initPost.body.readUtf8())
 
+        assertTrue(launchLatch.await(5, TimeUnit.SECONDS))
+
         verify {
             onLaunchCompletion.onResult(
                 match {
@@ -160,7 +163,8 @@ class DreamsViewTest {
 
     @Test
     fun launchServerError() {
-        val onLaunchCompletion = spyk(RequestInterface.OnLaunchCompletion {})
+        val launchLatch = CountDownLatch(1)
+        val onLaunchCompletion = spyk(RequestInterface.OnLaunchCompletion { launchLatch.countDown() })
 
         activityRule.scenario.onActivity {
             val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
@@ -174,6 +178,8 @@ class DreamsViewTest {
         assertEquals("application/json", initPost.getHeader("Accept"))
         val expectedBody = """{"client_id":"clientId","token":"internal_error","locale":"fr_CA"}"""
         assertEquals(expectedBody, initPost.body.readUtf8())
+
+        assertTrue(launchLatch.await(5, TimeUnit.SECONDS))
 
         verify {
             onLaunchCompletion.onResult(
