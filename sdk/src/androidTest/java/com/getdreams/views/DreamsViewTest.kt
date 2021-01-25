@@ -17,6 +17,7 @@ import com.getdreams.TestActivity
 import com.getdreams.connections.webview.LaunchError
 import com.getdreams.connections.webview.RequestInterface
 import com.getdreams.events.Event
+import com.getdreams.test.utils.LaunchCompletionWithLatch
 import com.getdreams.test.utils.getInputStreamFromAssets
 import com.getdreams.test.utils.testResponseEvent
 import io.mockk.confirmVerified
@@ -96,7 +97,8 @@ class DreamsViewTest {
     fun launch() {
         val latch = CountDownLatch(1)
 
-        val onLaunchCompletion = spyk(RequestInterface.OnLaunchCompletion {})
+        val launchCompletion = LaunchCompletionWithLatch()
+        val onLaunchCompletion = spyk(launchCompletion)
 
         activityRule.scenario.onActivity {
             val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
@@ -123,6 +125,7 @@ class DreamsViewTest {
         val expectedBody = """{"client_id":"clientId","token":"id token","locale":"fr_CA"}"""
         assertEquals(expectedBody, initPost.body.readUtf8())
 
+        assertTrue(launchCompletion.latch.await(5, TimeUnit.SECONDS))
         verify { onLaunchCompletion.onResult(Result.success(Unit)) }
         confirmVerified(onLaunchCompletion)
 
@@ -133,8 +136,8 @@ class DreamsViewTest {
 
     @Test
     fun launchWithInvalidCredentials() {
-        val launchLatch = CountDownLatch(1)
-        val onLaunchCompletion = spyk(RequestInterface.OnLaunchCompletion { launchLatch.countDown() })
+        val launchCompletion = LaunchCompletionWithLatch()
+        val onLaunchCompletion = spyk(launchCompletion)
 
         activityRule.scenario.onActivity {
             val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
@@ -149,7 +152,7 @@ class DreamsViewTest {
         val expectedBody = """{"client_id":"clientId","token":"fail_auth","locale":"fr_CA"}"""
         assertEquals(expectedBody, initPost.body.readUtf8())
 
-        assertTrue(launchLatch.await(5, TimeUnit.SECONDS))
+        assertTrue(launchCompletion.latch.await(5, TimeUnit.SECONDS))
 
         verify {
             onLaunchCompletion.onResult(
@@ -163,8 +166,8 @@ class DreamsViewTest {
 
     @Test
     fun launchServerError() {
-        val launchLatch = CountDownLatch(1)
-        val onLaunchCompletion = spyk(RequestInterface.OnLaunchCompletion { launchLatch.countDown() })
+        val launchCompletion = LaunchCompletionWithLatch()
+        val onLaunchCompletion = spyk(launchCompletion)
 
         activityRule.scenario.onActivity {
             val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
@@ -179,7 +182,7 @@ class DreamsViewTest {
         val expectedBody = """{"client_id":"clientId","token":"internal_error","locale":"fr_CA"}"""
         assertEquals(expectedBody, initPost.body.readUtf8())
 
-        assertTrue(launchLatch.await(5, TimeUnit.SECONDS))
+        assertTrue(launchCompletion.latch.await(5, TimeUnit.SECONDS))
 
         verify {
             onLaunchCompletion.onResult(
