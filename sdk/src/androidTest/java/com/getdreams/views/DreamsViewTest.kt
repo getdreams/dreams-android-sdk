@@ -62,7 +62,12 @@ class DreamsViewTest {
                     } catch (e: Exception) {
                         JSONObject()
                     }
-                    when (params.getString("token")) {
+                    val token = try {
+                        params.getString("token")
+                    } catch (e: Exception) {
+                        ""
+                    }
+                    when (token) {
                         "fail_auth" -> {
                             return MockResponse().setResponseCode(422)
                         }
