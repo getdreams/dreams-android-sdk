@@ -75,6 +75,7 @@ class ExampleApp : Application() {
 ```
 
 To show Dreams simply add `DreamsView` to a layout, and then call `DreamsView.launch()`.
+To handle possible errors during launch you can send a `OnLaunchCompletion` to `DreamsView.launch()` that will be invoked with the result of the launch.
 
 ```xml
 <com.getdreams.views.DreamsView
@@ -85,7 +86,26 @@ To show Dreams simply add `DreamsView` to a layout, and then call `DreamsView.la
 
 ```kotlin
 val dreamsView: DreamsView = findViewById<DreamsView>(R.id.dreams)
-dreamsView.launch(Dreams.Credentials(idToken = "user token"))
+dreamsView.launch(Dreams.Credentials(idToken = "user token")) { result ->
+    when (result) {
+        is Result.Success -> {
+            // Dreams was launched successfully
+        }
+        is Result.Failure -> {
+            when (val err = result.error) {
+                is LaunchError.InvalidCredentials -> {
+                    // The provided credentials were invalid
+                }
+                is LaunchError.HttpError -> {
+                    // The server returned a HTTP error code
+                }
+                is LaunchError.UnexpectedError -> {
+                    // Something went wrong when trying to open a connection to Dreams
+                }
+            }
+        }
+    }
+}
 ```
 
 ### Events

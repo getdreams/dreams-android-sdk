@@ -11,8 +11,8 @@
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         // Let tests know they can call JS functions
-        JSBridge.onTelemetryEvent(JSON.stringify({name:'content_loaded'}));
-    });
+        JSBridge.onTelemetryEvent(JSON.stringify({ name: 'content_loaded' }));
+    })
     // data is a json string: '{ "locale": string }'
     function updateLocale(data) {
         var obj = JSON.parse(data);
@@ -30,16 +30,16 @@
         return "OK";
     }
     function onEvent(name, location) {
-        window.JSBridge.onTelemetryEvent(JSON.stringify({name,payload:{location}}));
+        window.JSBridge.onTelemetryEvent(JSON.stringify({ name: name, payload: { location: location } }));
     }
     function exit() {
         JSBridge.onExitRequested();
     }
     function expireToken() {
-        JSBridge.onIdTokenDidExpire(JSON.stringify({requestId:"uuid"}));
+        JSBridge.onIdTokenDidExpire(JSON.stringify({ requestId: "uuid" }));
     }
     function provisionAccount() {
-        JSBridge.onAccountProvisionRequested(JSON.stringify({requestId:"uuid"}));
+        JSBridge.onAccountProvisionRequested(JSON.stringify({ requestId: "uuid" }));
     }
     </script>
 </head>

@@ -6,22 +6,41 @@
 
 package com.getdreams.connections.webview
 
-import com.getdreams.Location
+import android.util.Log
 import com.getdreams.Credentials
 import java.util.Locale
+import com.getdreams.Result
+
 
 /**
  * Interface for requests to the Dreams web app.
  */
 interface RequestInterface {
     /**
-     * Launch Dreams at [location].
+     * Functional interface for recieving the result of a launch call.
+     */
+    fun interface OnLaunchCompletion {
+        /**
+         * Called with the result of the launch call.
+         */
+        fun onResult(result: Result<Unit, LaunchError>)
+    }
+    /**
+     * Launch Dreams.
      *
      * @param credentials Credentials used to authenticate the user.
-     * @param location What screen to open, by default `home`.
      * @param locale If set overrides the user locale.
+     * @param onCompletion Called when [launch] has completed.
      */
-    fun launch(credentials: Credentials, location: String = Location.Home.value, locale: Locale? = null)
+    fun launch(
+        credentials: Credentials,
+        locale: Locale? = null,
+        onCompletion: OnLaunchCompletion = OnLaunchCompletion {
+            if (it is Result.Failure) {
+                Log.e("Dreams", "Failed to launch due to ${it.error.message}", it.error.cause)
+            }
+        }
+    )
 
     /**
      * Set the locale used in Dreams.
