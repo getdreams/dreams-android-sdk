@@ -2,7 +2,7 @@
 
 All notable changes to this library will be documented here.
 
-### [0.2.3](https://github.com/getdreams/dreams-android-sdk/compare/0.2.2...0.2.3) (2021-01-27)
+## [0.3.0](https://github.com/getdreams/dreams-android-sdk/compare/0.2.2...0.3.0) (2021-01-27)
 
 
 ### ⚠ BREAKING CHANGES
