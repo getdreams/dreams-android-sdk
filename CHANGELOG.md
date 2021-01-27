@@ -2,6 +2,22 @@
 
 All notable changes to this library will be documented here.
 
+### [0.2.3](https://github.com/getdreams/dreams-android-sdk/compare/0.2.2...0.2.3) (2021-01-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* `DreamsView.launch` no longer takes a location.
+
+### Features
+
+* allow callers of launch to react to errors ([d42c81f](https://github.com/getdreams/dreams-android-sdk/commit/d42c81f7ebefcbe725b48e0a41bd4afcb44b7c62))
+
+
+### Refactors
+
+* removed unused parameter from launch ([88c65eb](https://github.com/getdreams/dreams-android-sdk/commit/88c65eb2bc45f7badb06cf16a9976c3ab0b510a4))
+
 ## [0.2.2](https://github.com/getdreams/dreams-android-sdk/compare/0.2.1...0.2.2) (2021-01-15)
 
 ### ⚠ Breaking Changes
