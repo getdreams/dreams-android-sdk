@@ -15,7 +15,6 @@ import com.getdreams.R
 import com.getdreams.Result
 import com.getdreams.TestActivity
 import com.getdreams.connections.webview.LaunchError
-import com.getdreams.connections.webview.RequestInterface
 import com.getdreams.events.Event
 import com.getdreams.test.utils.LaunchCompletionWithLatch
 import com.getdreams.test.utils.getInputStreamFromAssets
@@ -31,11 +30,9 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import okio.Buffer
-import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,47 +47,18 @@ class DreamsViewTest {
     @get:Rule
     var activityRule = ActivityScenarioRule(TestActivity::class.java)
 
-    @get:Rule
-    var server = MockWebServer()
-
     class MockDreamsDispatcher(private val server: MockWebServer) : Dispatcher() {
         override fun dispatch(request: RecordedRequest): MockResponse {
             return when (request.path) {
-                "/users/verify_token" -> {
-                    val params = try {
-                        JSONObject(request.body.copy().readUtf8())
-                    } catch (e: Exception) {
-                        JSONObject()
-                    }
-                    val token = try {
-                        params.getString("token")
-                    } catch (e: Exception) {
-                        ""
-                    }
-                    when (token) {
-                        "fail_auth" -> {
-                            return MockResponse().setResponseCode(422)
-                        }
-                        "internal_error" -> {
-                            return MockResponse().setResponseCode(500)
-                        }
-                        else -> MockResponse()
-                            .setResponseCode(302)
-                            .addHeader("Location", server.url("/index").toString())
-                    }
-                }
+                "/users/verify_token" -> MockResponse()
+                    .setResponseCode(302)
+                    .addHeader("Location", server.url("/index").toString())
                 "/index" -> MockResponse()
                     .setResponseCode(200)
                     .setBody(Buffer().readFrom(getInputStreamFromAssets("index.html")))
                 else -> MockResponse().setResponseCode(404)
             }
         }
-    }
-
-    @Before
-    fun setup() {
-        server.dispatcher = MockDreamsDispatcher(server)
-        Dreams.configure(Dreams.Configuration("clientId", server.url("/").toString()))
     }
 
     @After
@@ -100,6 +68,11 @@ class DreamsViewTest {
 
     @Test
     fun launch() {
+        val server = MockWebServer()
+        server.dispatcher = MockDreamsDispatcher(server)
+        server.start()
+        Dreams.configure(Dreams.Configuration("clientId", server.url("/").toString()))
+
         val latch = CountDownLatch(1)
 
         val launchCompletion = LaunchCompletionWithLatch()
@@ -137,10 +110,17 @@ class DreamsViewTest {
         val urlLoad = server.takeRequest()
         assertEquals("/index", urlLoad.path)
         assertEquals("GET", urlLoad.method)
+        server.shutdown()
     }
 
     @Test
     fun launchWithInvalidCredentials() {
+        val server = MockWebServer()
+        server.start()
+        Dreams.configure(Dreams.Configuration("clientId", server.url("/").toString()))
+
+        server.enqueue(MockResponse().setResponseCode(422))
+
         val launchCompletion = LaunchCompletionWithLatch()
         val onLaunchCompletion = spyk(launchCompletion)
 
@@ -167,10 +147,17 @@ class DreamsViewTest {
             )
         }
         confirmVerified(onLaunchCompletion)
+        server.shutdown()
     }
 
     @Test
     fun launchServerError() {
+        val server = MockWebServer()
+        server.start()
+        Dreams.configure(Dreams.Configuration("clientId", server.url("/").toString()))
+
+        server.enqueue(MockResponse().setResponseCode(500))
+
         val launchCompletion = LaunchCompletionWithLatch()
         val onLaunchCompletion = spyk(launchCompletion)
 
@@ -197,10 +184,16 @@ class DreamsViewTest {
             )
         }
         confirmVerified(onLaunchCompletion)
+        server.shutdown()
     }
 
     @Test
     fun updateLocale() {
+        val server = MockWebServer()
+        server.dispatcher = MockDreamsDispatcher(server)
+        server.start()
+        Dreams.configure(Dreams.Configuration("clientId", server.url("/").toString()))
+
         val latch = CountDownLatch(1)
         activityRule.scenario.onActivity {
             val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
@@ -226,10 +219,16 @@ class DreamsViewTest {
         val urlLoad = server.takeRequest()
         assertEquals("/index", urlLoad.path)
         assertEquals("GET", urlLoad.method)
+        server.shutdown()
     }
 
     @Test
     fun updateIdToken() {
+        val server = MockWebServer()
+        server.dispatcher = MockDreamsDispatcher(server)
+        server.start()
+        Dreams.configure(Dreams.Configuration("clientId", server.url("/").toString()))
+
         val latch = CountDownLatch(1)
         activityRule.testResponseEvent("expire_token_button") { event, view ->
             assertEquals(Event.CredentialsExpired("uuid"), event)
@@ -240,10 +239,16 @@ class DreamsViewTest {
             }
         }
         assertTrue(latch.await(5, TimeUnit.SECONDS))
+        server.shutdown()
     }
 
     @Test
     fun accountProvisioned() {
+        val server = MockWebServer()
+        server.dispatcher = MockDreamsDispatcher(server)
+        server.start()
+        Dreams.configure(Dreams.Configuration("clientId", server.url("/").toString()))
+
         val latch = CountDownLatch(1)
         activityRule.testResponseEvent("provision_account_button") { event, view ->
             assertEquals(Event.AccountProvisionRequested("uuid"), event)
@@ -254,16 +259,23 @@ class DreamsViewTest {
             }
         }
         assertTrue(latch.await(5, TimeUnit.SECONDS))
+        server.shutdown()
     }
 
     @Test
     fun onExitRequested() {
+        val server = MockWebServer()
+        server.dispatcher = MockDreamsDispatcher(server)
+        server.start()
+        Dreams.configure(Dreams.Configuration("clientId", server.url("/").toString()))
+
         val latch = CountDownLatch(1)
         activityRule.testResponseEvent("exit_button") { event, _ ->
             assertEquals(Event.ExitRequested, event)
             latch.countDown()
         }
         assertTrue(latch.await(5, TimeUnit.SECONDS))
+        server.shutdown()
     }
 
     @Test
