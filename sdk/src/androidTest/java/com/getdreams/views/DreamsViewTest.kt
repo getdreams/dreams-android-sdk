@@ -100,7 +100,7 @@ class DreamsViewTest {
         assertEquals("POST", initPost.method)
         assertEquals("application/json; utf-8", initPost.getHeader("Content-Type"))
         assertEquals("application/json", initPost.getHeader("Accept"))
-        val expectedBody = """{"client_id":"clientId","token":"id token","locale":"fr_CA"}"""
+        val expectedBody = """{"client_id":"clientId","token":"id token","locale":"fr-CA"}"""
         assertEquals(expectedBody, initPost.body.readUtf8())
 
         assertTrue(launchCompletion.latch.await(5, TimeUnit.SECONDS))
@@ -126,7 +126,7 @@ class DreamsViewTest {
 
         activityRule.scenario.onActivity {
             val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
-            dreamsView.launch(Credentials("fail_auth"), locale = Locale.CANADA_FRENCH, onLaunchCompletion)
+            dreamsView.launch(Credentials("fail_auth"), locale = Locale.FRENCH, onLaunchCompletion)
         }
 
         val initPost = server.takeRequest()
@@ -134,7 +134,7 @@ class DreamsViewTest {
         assertEquals("POST", initPost.method)
         assertEquals("application/json; utf-8", initPost.getHeader("Content-Type"))
         assertEquals("application/json", initPost.getHeader("Accept"))
-        val expectedBody = """{"client_id":"clientId","token":"fail_auth","locale":"fr_CA"}"""
+        val expectedBody = """{"client_id":"clientId","token":"fail_auth","locale":"fr"}"""
         assertEquals(expectedBody, initPost.body.readUtf8())
 
         assertTrue(launchCompletion.latch.await(5, TimeUnit.SECONDS))
@@ -163,7 +163,7 @@ class DreamsViewTest {
 
         activityRule.scenario.onActivity {
             val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
-            dreamsView.launch(Credentials("internal_error"), locale = Locale.CANADA_FRENCH, onLaunchCompletion)
+            dreamsView.launch(Credentials("internal_error"), locale = Locale("sl", "IT", "nedis"), onLaunchCompletion)
         }
 
         val initPost = server.takeRequest()
@@ -171,7 +171,7 @@ class DreamsViewTest {
         assertEquals("POST", initPost.method)
         assertEquals("application/json; utf-8", initPost.getHeader("Content-Type"))
         assertEquals("application/json", initPost.getHeader("Accept"))
-        val expectedBody = """{"client_id":"clientId","token":"internal_error","locale":"fr_CA"}"""
+        val expectedBody = """{"client_id":"clientId","token":"internal_error","locale":"sl-IT-nedis"}"""
         assertEquals(expectedBody, initPost.body.readUtf8())
 
         assertTrue(launchCompletion.latch.await(5, TimeUnit.SECONDS))
