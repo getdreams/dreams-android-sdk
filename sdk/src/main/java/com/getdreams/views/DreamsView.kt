@@ -267,15 +267,8 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }
     }
 
-    override fun launch(credentials: Credentials, locale: Locale?, onCompletion: OnLaunchCompletion) {
-        val languageTag = locale?.toLanguageTag() ?: with(resources.configuration) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                locales[0] ?: Locale.ROOT
-            } else {
-                @Suppress("DEPRECATION")
-                this@with.locale ?: Locale.ROOT
-            }
-        }.toLanguageTag()
+    override fun launch(credentials: Credentials, locale: Locale, onCompletion: OnLaunchCompletion) {
+        val languageTag = locale.toLanguageTag()
 
         GlobalScope.launch {
             when (val result = initializeWebApp(Dreams.instance.clientId, credentials.idToken, languageTag)) {

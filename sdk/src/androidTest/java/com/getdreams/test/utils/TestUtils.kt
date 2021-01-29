@@ -23,6 +23,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.junit.Assert.assertTrue
 import java.io.InputStream
+import java.util.Locale
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -46,7 +47,7 @@ inline fun ActivityScenarioRule<TestActivity>.testResponseEvent(
     val contentLatch = CountDownLatch(1)
     scenario.onActivity { activity ->
         val dreamsView = activity.findViewById<DreamsView>(R.id.dreams)
-        dreamsView.launch(Credentials("token"))
+        dreamsView.launch(Credentials("token"), Locale.ROOT)
         dreamsView.registerEventListener { event ->
             when (event) {
                 is Event.Telemetry -> {

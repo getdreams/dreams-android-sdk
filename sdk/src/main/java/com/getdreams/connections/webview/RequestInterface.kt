@@ -34,7 +34,7 @@ interface RequestInterface {
      */
     fun launch(
         credentials: Credentials,
-        locale: Locale? = null,
+        locale: Locale,
         onCompletion: OnLaunchCompletion = OnLaunchCompletion {
             if (it is Result.Failure) {
                 Log.e("Dreams", "Failed to launch due to ${it.error.message}", it.error.cause)
