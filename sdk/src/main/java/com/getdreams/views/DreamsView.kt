@@ -235,12 +235,12 @@ class DreamsView : FrameLayout, DreamsViewInterface {
     private suspend fun initializeWebApp(
         clientId: String,
         idToken: String,
-        languageTag: String
+        localeIdentifier: String
     ): Result<String, LaunchError> {
         val jsonBody = JSONObject()
             .put("client_id", clientId)
             .put("token", idToken)
-            .put("locale", languageTag)
+            .put("locale", localeIdentifier)
         val result = withContext(Dispatchers.IO) {
             verifyTokenRequest(
                 Dreams.instance.baseUri,
