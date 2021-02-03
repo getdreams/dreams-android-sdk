@@ -2,6 +2,17 @@
 
 All notable changes to this library will be documented here.
 
+## [0.4.0](https://github.com/getdreams/dreams-android-sdk/compare/0.3.0...0.4.0) (2021-02-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* DreamsView.launch() now requires a locale to be sent.
+
+### Refactors
+
+* require a locale when launching dreams ([b215dea](https://github.com/getdreams/dreams-android-sdk/commit/b215deaae14e34967b7e7284c14bf2fb2c3c434d))
+
 ## [0.3.0](https://github.com/getdreams/dreams-android-sdk/compare/0.2.2...0.3.0) (2021-01-27)
 
 
