@@ -26,7 +26,6 @@ import com.getdreams.connections.webview.LaunchError
 import com.getdreams.connections.webview.RequestInterface.OnLaunchCompletion
 import com.getdreams.connections.webview.ResponseInterface
 import com.getdreams.events.Event
-import com.getdreams.posix
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -236,12 +235,12 @@ class DreamsView : FrameLayout, DreamsViewInterface {
     private suspend fun initializeWebApp(
         clientId: String,
         idToken: String,
-        posixLocale: String
+        localeIdentifier: String
     ): Result<String, LaunchError> {
         val jsonBody = JSONObject()
             .put("client_id", clientId)
             .put("token", idToken)
-            .put("locale", posixLocale)
+            .put("locale", localeIdentifier)
         val result = withContext(Dispatchers.IO) {
             verifyTokenRequest(
                 Dreams.instance.baseUri,
@@ -268,18 +267,11 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }
     }
 
-    override fun launch(credentials: Credentials, locale: Locale?, onCompletion: OnLaunchCompletion) {
-        val posixLocale = locale?.posix ?: with(resources.configuration) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                locales[0] ?: Locale.ROOT
-            } else {
-                @Suppress("DEPRECATION")
-                this@with.locale ?: Locale.ROOT
-            }
-        }.posix
+    override fun launch(credentials: Credentials, locale: Locale, onCompletion: OnLaunchCompletion) {
+        val languageTag = locale.toLanguageTag()
 
         GlobalScope.launch {
-            when (val result = initializeWebApp(Dreams.instance.clientId, credentials.idToken, posixLocale)) {
+            when (val result = initializeWebApp(Dreams.instance.clientId, credentials.idToken, languageTag)) {
                 is Result.Success -> {
                     withContext(Dispatchers.Main) {
                         webView.loadUrl(result.value)
@@ -295,7 +287,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
 
     override fun updateLocale(locale: Locale) {
         val jsonData: JSONObject = JSONObject()
-            .put("locale", locale.posix)
+            .put("locale", locale.toLanguageTag())
         GlobalScope.launch(Dispatchers.Main.immediate) {
             webView.evaluateJavascript("updateLocale('${jsonData}')") {
                 Log.v("Dreams", "updateLocale returned $it")

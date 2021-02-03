@@ -20,6 +20,7 @@ import com.getdreams.views.DreamsView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
     private val dreamsView: DreamsView
@@ -79,7 +80,7 @@ class MainActivity : AppCompatActivity() {
             .setMessage("Loading Dreams...")
             .show()
 
-        dreamsView.launch(Credentials("token")) { result ->
+        dreamsView.launch(Credentials("token"), Locale.ENGLISH) { result ->
             when (result) {
                 is Result.Success -> {
                     // Dreams was launched, dismiss loading indicator

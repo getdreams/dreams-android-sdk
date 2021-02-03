@@ -86,7 +86,7 @@ To handle possible errors during launch you can send a `OnLaunchCompletion` to `
 
 ```kotlin
 val dreamsView: DreamsView = findViewById<DreamsView>(R.id.dreams)
-dreamsView.launch(Dreams.Credentials(idToken = "user token")) { result ->
+dreamsView.launch(Dreams.Credentials(idToken = "user token"), Locale.ENGLISH) { result ->
     when (result) {
         is Result.Success -> {
             // Dreams was launched successfully
