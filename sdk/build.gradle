@@ -83,8 +83,8 @@ tasks.findAll { it.name.contains("dokka") }.forEach {
     }
 }
 
-task sourceJar(type: Jar) {
-    archiveClassifier.set('src')
+task androidSourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
     from android.sourceSets.main.java.srcDirs
 }
 
@@ -117,7 +117,7 @@ afterEvaluate {
                 artifactId = 'android-sdk'
                 version = android.defaultConfig.versionName
 
-                artifact sourceJar
+                artifact androidSourcesJar
                 artifact javadocsJar
                 artifact htmlJar
 
