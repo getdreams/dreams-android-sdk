@@ -18,6 +18,7 @@ import android.webkit.WebView
 import android.widget.FrameLayout
 import com.getdreams.Credentials
 import com.getdreams.Dreams
+import com.getdreams.R
 import com.getdreams.Result
 import com.getdreams.Result.Companion.failure
 import com.getdreams.Result.Companion.success
@@ -57,7 +58,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         defStyleAttr
     ) {
         webView = WebView(context, attrs, defStyleAttr)
-        init()
+        init(context, attrs, defStyleAttr)
     }
 
     @Suppress("unused")
@@ -65,7 +66,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0, defStyleRes: Int = 0
     ) : super(context, attrs, defStyleAttr, defStyleRes) {
         webView = WebView(context, attrs, defStyleAttr, defStyleRes)
-        init()
+        init(context, attrs, defStyleAttr, defStyleRes)
     }
 
     private val webView: WebView
@@ -74,7 +75,14 @@ class DreamsView : FrameLayout, DreamsViewInterface {
     /**
      * Add and setup the web view.
      */
-    private fun init() {
+    private fun init(context: Context, attrs: AttributeSet?, defStyleAttr: Int = 0, defStyleRes: Int = 0) {
+        val attributes = context.obtainStyledAttributes(attrs, R.styleable.DreamsView, defStyleAttr, defStyleRes)
+        val focusableInTouchMode = attributes.getBoolean(R.styleable.DreamsView_android_focusableInTouchMode, true)
+        attributes.recycle()
+
+        isFocusableInTouchMode = focusableInTouchMode
+        webView.isFocusableInTouchMode = focusableInTouchMode
+
         addView(webView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         webView.apply {
             settings.apply {
