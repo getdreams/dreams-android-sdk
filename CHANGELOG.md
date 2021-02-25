@@ -2,6 +2,13 @@
 
 All notable changes to this library will be documented here.
 
+### [0.4.1](https://github.com/getdreams/dreams-android-sdk/compare/0.4.0...0.4.1) (2021-02-25)
+
+
+### Features
+
+* default dreams view to focusable in touch mode ([1e186d4](https://github.com/getdreams/dreams-android-sdk/commit/1e186d42e3cd95ed84a962b1c73916e20ed1ac07))
+
 ## [0.4.0](https://github.com/getdreams/dreams-android-sdk/compare/0.3.0...0.4.0) (2021-02-03)
 
 
