@@ -108,6 +108,15 @@ dreamsView.launch(Dreams.Credentials(idToken = "user token"), Locale.ENGLISH) { 
 }
 ```
 
+Note as the dreams view can trigger showing the IME, e.g. a soft keyboard, it needs to be resized so the IME does not cover part of the dreams view.
+The easiest way to achieve this is to flag the activity as `adjustResize`.
+
+```xml
+<activity
+    android:name=".Example"
+    android:windowSoftInputMode="adjustResize"/>
+```
+
 ### Events
 
 In order to listen for events from Dreams you need to register a listener on the DreamsView.
