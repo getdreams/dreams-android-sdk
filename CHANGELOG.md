@@ -2,6 +2,13 @@
 
 All notable changes to this library will be documented here.
 
+### [0.4.2](https://github.com/getdreams/dreams-android-sdk/compare/0.4.1...0.4.2) (2021-03-16)
+
+
+### Bug Fixes
+
+* always have the dreams web view intercept requests ([6b70d98](https://github.com/getdreams/dreams-android-sdk/commit/6b70d98fdf165166d94a2e8cc9bb01bad729c24a))
+
 ### [0.4.1](https://github.com/getdreams/dreams-android-sdk/compare/0.4.0...0.4.1) (2021-02-25)
 
 
