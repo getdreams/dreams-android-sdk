@@ -14,7 +14,10 @@ import android.util.AttributeSet
 import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import com.getdreams.Credentials
 import com.getdreams.Dreams
@@ -109,6 +112,11 @@ class DreamsView : FrameLayout, DreamsViewInterface {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     offscreenPreRaster = true
                 }
+            }
+        }
+        webView.webViewClient = object : WebViewClient() {
+            override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
+                return null
             }
         }
 
