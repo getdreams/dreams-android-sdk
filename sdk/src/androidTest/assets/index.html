@@ -41,6 +41,9 @@
     function provisionAccount() {
         JSBridge.onAccountProvisionRequested(JSON.stringify({ requestId: "uuid" }));
     }
+     function share() {
+        JSBridge.onShare(JSON.stringify({text: "text" , url:"http://test.url", title : "testTitle"}));
+    }
     </script>
 </head>
 <body>
@@ -49,5 +52,6 @@
 <button id="exit_button" onclick="exit()">exit</button>
 <button id="expire_token_button" onclick="expireToken()">expire id token</button>
 <button id="provision_account_button" onclick="provisionAccount()">provision account</button>
+<button id="share_button" onclick="share()">share</button>
 </body>
 </html>

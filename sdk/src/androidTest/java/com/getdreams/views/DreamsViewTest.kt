@@ -293,4 +293,20 @@ class DreamsViewTest {
             dreamsView.goBack()
         }
     }
+
+    @Test
+    fun onShare() {
+        val server = MockWebServer()
+        server.dispatcher = MockDreamsDispatcher(server)
+        server.start()
+        Dreams.configure(Dreams.Configuration("clientId", server.url("/").toString()))
+
+        val latch = CountDownLatch(1)
+        activityRule.testResponseEvent("share_button") { event, _ ->
+            assertEquals(Event.Share, event)
+            latch.countDown()
+        }
+       assertTrue(latch.await(5, TimeUnit.SECONDS))
+       server.shutdown()
+    }
 }
