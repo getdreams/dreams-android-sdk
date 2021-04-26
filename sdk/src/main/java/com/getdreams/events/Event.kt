@@ -33,7 +33,7 @@ sealed class Event {
     object ExitRequested : Event()
 
     /**
-     * Event sent when share should be triggered in Dreams .
+     * Event sent when share should be triggered in Dreams.
      */
     object Share : Event()
 }

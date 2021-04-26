@@ -33,7 +33,7 @@ internal interface ResponseInterface {
     fun onExitRequested()
 
     /**
-     * The user requests share dialog to be prompted
+     * The user requests share dialog to be prompted.
      */
     fun onShare(data: String)
 }
