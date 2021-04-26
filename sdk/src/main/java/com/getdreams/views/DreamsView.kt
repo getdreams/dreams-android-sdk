@@ -182,7 +182,7 @@ class DreamsView : FrameLayout, DreamsViewInterface {
                         this@DreamsView.onResponse(Event.Share)
                     }
                 } catch (e: JSONException) {
-                    Log.w("Dreams", "Unable to parse telemetry", e)
+                    Log.w("Dreams", "Unable to parse share json", e)
                 }
             }
         }, "JSBridge")
