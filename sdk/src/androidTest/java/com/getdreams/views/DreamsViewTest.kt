@@ -317,7 +317,7 @@ class DreamsViewTest {
         activityRule.testResponseEvent("share_button") { event, _ ->
             assertEquals(Event.Share, event)
             latch.countDown()
-            latch.await(500, TimeUnit.SECONDS)
+            latch.await(5, TimeUnit.SECONDS)
         }
 
         assertTrue(InstrumentationRegistry.getInstrumentation().checkMonitorHit(monitor, 1));
