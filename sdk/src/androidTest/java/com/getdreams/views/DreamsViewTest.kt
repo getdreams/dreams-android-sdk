@@ -6,9 +6,13 @@
 
 package com.getdreams.views
 
+import android.app.Instrumentation
+import android.content.Intent
+import android.content.IntentFilter
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import com.getdreams.Credentials
 import com.getdreams.Dreams
 import com.getdreams.R
@@ -32,6 +36,7 @@ import okhttp3.mockwebserver.RecordedRequest
 import okio.Buffer
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -301,12 +306,23 @@ class DreamsViewTest {
         server.start()
         Dreams.configure(Dreams.Configuration("clientId", server.url("/").toString()))
 
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(Intent.ACTION_CHOOSER)
+        intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+
+        val monitor: Instrumentation.ActivityMonitor = InstrumentationRegistry.getInstrumentation()
+            .addMonitor(intentFilter, null, false);
+
         val latch = CountDownLatch(1)
         activityRule.testResponseEvent("share_button") { event, _ ->
             assertEquals(Event.Share, event)
             latch.countDown()
+            latch.await(500, TimeUnit.SECONDS)
         }
-       assertTrue(latch.await(5, TimeUnit.SECONDS))
-       server.shutdown()
+
+        assertTrue(InstrumentationRegistry.getInstrumentation().checkMonitorHit(monitor, 1));
+
+        assertTrue(latch.await(15, TimeUnit.SECONDS))
+        server.shutdown()
     }
 }
