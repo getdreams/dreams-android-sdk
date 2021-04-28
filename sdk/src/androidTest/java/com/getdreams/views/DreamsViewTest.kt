@@ -321,7 +321,7 @@ class DreamsViewTest {
             latch.await(10, TimeUnit.SECONDS)
             GlobalScope.launch {
 
-                val shareActivity = getInstrumentation().waitForMonitorWithTimeout(monitor, 1500)
+                val shareActivity = getInstrumentation().waitForMonitor(monitor)
                 assertEquals(true, getInstrumentation().checkMonitorHit(monitor, 1))
 
                 assertNotNull(shareActivity)
