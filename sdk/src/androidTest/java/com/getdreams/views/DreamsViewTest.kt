@@ -13,6 +13,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.getdreams.Credentials
 import com.getdreams.Dreams
 import com.getdreams.R
@@ -308,7 +309,6 @@ class DreamsViewTest {
 
         val intentFilter = IntentFilter()
         intentFilter.addAction(Intent.ACTION_CHOOSER)
-        intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
 
         val monitor: Instrumentation.ActivityMonitor = InstrumentationRegistry.getInstrumentation()
             .addMonitor(intentFilter, null, false);
@@ -317,7 +317,17 @@ class DreamsViewTest {
         activityRule.testResponseEvent("share_button") { event, _ ->
             assertEquals(Event.Share, event)
             latch.countDown()
-            latch.await(5, TimeUnit.SECONDS)
+
+            latch.await(10, TimeUnit.SECONDS)
+            GlobalScope.launch {
+
+                val shareActivity = getInstrumentation().waitForMonitorWithTimeout(monitor, 1500)
+                assertEquals(true, getInstrumentation().checkMonitorHit(monitor, 1))
+
+                assertNotNull(shareActivity)
+                assertEquals("android.intent.action.SEND", shareActivity.intent.getAction())
+                assertEquals("text/plain", shareActivity.intent.getType())
+            }
         }
 
         assertTrue(InstrumentationRegistry.getInstrumentation().checkMonitorHit(monitor, 1));
