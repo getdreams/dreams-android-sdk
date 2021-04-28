@@ -31,4 +31,9 @@ internal interface ResponseInterface {
      * The user requested to exit Dreams.
      */
     fun onExitRequested()
+
+    /**
+     * The user requests share dialog to be prompted.
+     */
+    fun onShare(data: String)
 }

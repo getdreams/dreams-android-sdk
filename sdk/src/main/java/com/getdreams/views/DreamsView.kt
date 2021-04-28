@@ -8,6 +8,7 @@ package com.getdreams.views
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.util.AttributeSet
@@ -165,6 +166,24 @@ class DreamsView : FrameLayout, DreamsViewInterface {
             @JavascriptInterface
             override fun onExitRequested() {
                 this@DreamsView.onResponse(Event.ExitRequested)
+            }
+
+            @JavascriptInterface
+            override fun onShare(data: String) {
+                try {
+                    val json = JSONTokener(data).nextValue() as? JSONObject?
+                    val text = json?.getString("text")
+                    val url = json?.getString("url")
+                    val title = json?.getString("title")
+
+                    if (text != null) {
+                        Log.v("Dreams", "Got Share event")
+                        openShareDialog(text, title, url)
+                        this@DreamsView.onResponse(Event.Share)
+                    }
+                } catch (e: JSONException) {
+                    Log.w("Dreams", "Unable to parse share json", e)
+                }
             }
         }, "JSBridge")
     }
@@ -330,6 +349,19 @@ class DreamsView : FrameLayout, DreamsViewInterface {
                 Log.v("Dreams", "accountProvisioned returned $it")
             }
         }
+    }
+
+    fun openShareDialog(text: String?, title: String?, url: String?) {
+        val share = Intent.createChooser(Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, text)
+
+            // (Optional) Here we're setting the title of the content
+            putExtra(Intent.EXTRA_TITLE, title)
+
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        }, null)
+        context.startActivity(share)
     }
 
     override fun registerEventListener(listener: EventListener): Boolean {

@@ -6,9 +6,14 @@
 
 package com.getdreams.views
 
+import android.app.Instrumentation
+import android.content.Intent
+import android.content.IntentFilter
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.getdreams.Credentials
 import com.getdreams.Dreams
 import com.getdreams.R
@@ -32,6 +37,7 @@ import okhttp3.mockwebserver.RecordedRequest
 import okio.Buffer
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -292,5 +298,39 @@ class DreamsViewTest {
             val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
             dreamsView.goBack()
         }
+    }
+
+    @Test
+    fun onShare() {
+        val server = MockWebServer()
+        server.dispatcher = MockDreamsDispatcher(server)
+        server.start()
+        Dreams.configure(Dreams.Configuration("clientId", server.url("/").toString()))
+
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(Intent.ACTION_CHOOSER)
+
+        val monitor: Instrumentation.ActivityMonitor = InstrumentationRegistry.getInstrumentation()
+            .addMonitor(intentFilter, null, false);
+
+        val latch = CountDownLatch(1)
+        activityRule.testResponseEvent("share_button") { event, _ ->
+            assertEquals(Event.Share, event)
+            latch.countDown()
+
+            latch.await(10, TimeUnit.SECONDS)
+            GlobalScope.launch {
+
+                val shareActivity = getInstrumentation().waitForMonitor(monitor)
+                assertEquals(true, getInstrumentation().checkMonitorHit(monitor, 1))
+
+                assertNotNull(shareActivity)
+                assertEquals("android.intent.action.SEND", shareActivity.intent.getAction())
+                assertEquals("text/plain", shareActivity.intent.getType())
+            }
+        }
+
+        assertTrue(latch.await(15, TimeUnit.SECONDS))
+        server.shutdown()
     }
 }
