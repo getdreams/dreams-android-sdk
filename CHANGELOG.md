@@ -2,6 +2,11 @@
 
 All notable changes to this library will be documented here.
 
+### [0.5.0](https://github.com/getdreams/dreams-android-sdk/compare/0.4.2...0.5.0) (2021-04-28)
+
+* Share functionality, that can be triggered using following JS code
+* `var payload = {"text":"Text to share", "url": "url"}; if (window.JSBridge) { window.JSBridge.share(payload); }`
+
 ### [0.4.2](https://github.com/getdreams/dreams-android-sdk/compare/0.4.1...0.4.2) (2021-03-16)
 
 
