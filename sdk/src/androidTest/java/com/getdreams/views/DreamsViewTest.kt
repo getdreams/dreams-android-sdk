@@ -330,8 +330,6 @@ class DreamsViewTest {
             }
         }
 
-        assertTrue(InstrumentationRegistry.getInstrumentation().checkMonitorHit(monitor, 1));
-
         assertTrue(latch.await(15, TimeUnit.SECONDS))
         server.shutdown()
     }
