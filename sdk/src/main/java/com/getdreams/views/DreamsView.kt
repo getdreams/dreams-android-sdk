@@ -174,8 +174,8 @@ class DreamsView : FrameLayout, DreamsViewInterface {
                 try {
                     val json = JSONTokener(data).nextValue() as? JSONObject?
                     val text = json?.getString("text")
-                    val url = json?.getString("url")
-                    val title = json?.getString("title")
+                    val url = json?.optString("url")
+                    val title = json?.optString("title")
 
                     if (text != null) {
                         Log.v("Dreams", "Got Share event")
@@ -357,8 +357,10 @@ class DreamsView : FrameLayout, DreamsViewInterface {
             action = Intent.ACTION_SEND
             putExtra(Intent.EXTRA_TEXT, Html.fromHtml(text + "<br/>" + url))
 
-            // (Optional) Here we're setting the title of the content
-            putExtra(Intent.EXTRA_TITLE, title)
+            if (title != null) {
+                putExtra(Intent.EXTRA_TITLE, title)
+            }
+
             type = "text/plain"
 
         }, null)

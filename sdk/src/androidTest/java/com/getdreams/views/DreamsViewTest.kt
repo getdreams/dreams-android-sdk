@@ -333,4 +333,38 @@ class DreamsViewTest {
         assertTrue(latch.await(15, TimeUnit.SECONDS))
         server.shutdown()
     }
+
+    @Test
+    fun onShareNullTitle() {
+        val server = MockWebServer()
+        server.dispatcher = MockDreamsDispatcher(server)
+        server.start()
+        Dreams.configure(Dreams.Configuration("clientId", server.url("/").toString()))
+
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(Intent.ACTION_CHOOSER)
+
+        val monitor: Instrumentation.ActivityMonitor = InstrumentationRegistry.getInstrumentation()
+            .addMonitor(intentFilter, null, false);
+
+        val latch = CountDownLatch(1)
+        activityRule.testResponseEvent("share_button_null") { event, _ ->
+            assertEquals(Event.Share, event)
+            latch.countDown()
+
+            latch.await(10, TimeUnit.SECONDS)
+            GlobalScope.launch {
+
+                val shareActivity = getInstrumentation().waitForMonitor(monitor)
+                assertEquals(true, getInstrumentation().checkMonitorHit(monitor, 1))
+
+                assertNotNull(shareActivity)
+                assertEquals("android.intent.action.SEND", shareActivity.intent.getAction())
+                assertEquals("text/plain", shareActivity.intent.getType())
+            }
+        }
+
+        assertTrue(latch.await(15, TimeUnit.SECONDS))
+        server.shutdown()
+    }
 }
