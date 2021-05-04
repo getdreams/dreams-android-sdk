@@ -11,6 +11,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.text.Html
 import android.util.AttributeSet
 import android.util.Log
 import android.webkit.CookieManager
@@ -354,12 +355,12 @@ class DreamsView : FrameLayout, DreamsViewInterface {
     fun openShareDialog(text: String?, title: String?, url: String?) {
         val share = Intent.createChooser(Intent().apply {
             action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, text)
+            putExtra(Intent.EXTRA_TEXT, Html.fromHtml(text + "<br/>" + url))
 
             // (Optional) Here we're setting the title of the content
             putExtra(Intent.EXTRA_TITLE, title)
+            type = "text/plain"
 
-            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
         }, null)
         context.startActivity(share)
     }
