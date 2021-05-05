@@ -11,6 +11,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.text.Html
 import android.util.AttributeSet
 import android.util.Log
 import android.webkit.CookieManager
@@ -173,8 +174,8 @@ class DreamsView : FrameLayout, DreamsViewInterface {
                 try {
                     val json = JSONTokener(data).nextValue() as? JSONObject?
                     val text = json?.getString("text")
-                    val url = json?.getString("url")
-                    val title = json?.getString("title")
+                    val url = json?.optString("url")
+                    val title = json?.optString("title")
 
                     if (text != null) {
                         Log.v("Dreams", "Got Share event")
@@ -351,15 +352,17 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }
     }
 
-    fun openShareDialog(text: String?, title: String?, url: String?) {
+    fun openShareDialog(text: String, title: String?, url: String?) {
         val share = Intent.createChooser(Intent().apply {
             action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, text)
+            putExtra(Intent.EXTRA_TEXT,  if (url.isNullOrEmpty()) { text } else { "$text\n$url" })
 
-            // (Optional) Here we're setting the title of the content
-            putExtra(Intent.EXTRA_TITLE, title)
+            if (title != null) {
+                putExtra(Intent.EXTRA_TITLE, title)
+            }
 
-            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            type = "text/plain"
+
         }, null)
         context.startActivity(share)
     }

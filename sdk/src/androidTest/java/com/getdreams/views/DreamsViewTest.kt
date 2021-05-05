@@ -6,14 +6,16 @@
 
 package com.getdreams.views
 
-import android.app.Instrumentation
 import android.content.Intent
-import android.content.IntentFilter
+import android.text.Html
+import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.Intents.intended
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasType
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.getdreams.Credentials
 import com.getdreams.Dreams
 import com.getdreams.R
@@ -35,10 +37,14 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import okio.Buffer
+import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.not
+import org.hamcrest.Matchers.anything
+import org.hamcrest.Matchers.allOf
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,8 +73,14 @@ class DreamsViewTest {
         }
     }
 
+    @Before
+    fun setup() {
+        Intents.init()
+    }
+
     @After
     fun teardown() {
+        Intents.release()
         Dreams._instance = null
     }
 
@@ -307,30 +319,58 @@ class DreamsViewTest {
         server.start()
         Dreams.configure(Dreams.Configuration("clientId", server.url("/").toString()))
 
-        val intentFilter = IntentFilter()
-        intentFilter.addAction(Intent.ACTION_CHOOSER)
-
-        val monitor: Instrumentation.ActivityMonitor = InstrumentationRegistry.getInstrumentation()
-            .addMonitor(intentFilter, null, false);
-
         val latch = CountDownLatch(1)
         activityRule.testResponseEvent("share_button") { event, _ ->
             assertEquals(Event.Share, event)
             latch.countDown()
-
-            latch.await(10, TimeUnit.SECONDS)
-            GlobalScope.launch {
-
-                val shareActivity = getInstrumentation().waitForMonitor(monitor)
-                assertEquals(true, getInstrumentation().checkMonitorHit(monitor, 1))
-
-                assertNotNull(shareActivity)
-                assertEquals("android.intent.action.SEND", shareActivity.intent.getAction())
-                assertEquals("text/plain", shareActivity.intent.getType())
-            }
         }
 
-        assertTrue(latch.await(15, TimeUnit.SECONDS))
+        assertTrue(latch.await(5, TimeUnit.SECONDS))
+
+        val shareText = "text for share\n" + "http://test.url"
+        val shareIntent = allOf(
+            hasExtra(equalTo(Intent.EXTRA_TEXT), equalTo(shareText)),
+            hasExtra(equalTo(Intent.EXTRA_TITLE), equalTo("testTitle")),
+            hasType("text/plain"),
+            hasAction(Intent.ACTION_SEND),
+        )
+        intended(
+            allOf(
+                hasAction(Intent.ACTION_CHOOSER),
+                hasExtra(equalTo(Intent.EXTRA_INTENT), shareIntent),
+            )
+        )
+        server.shutdown()
+    }
+
+    @Test
+    fun onShareNullTitle() {
+        val server = MockWebServer()
+        server.dispatcher = MockDreamsDispatcher(server)
+        server.start()
+        Dreams.configure(Dreams.Configuration("clientId", server.url("/").toString()))
+
+        val latch = CountDownLatch(1)
+        activityRule.testResponseEvent("share_button_null") { event, _ ->
+            assertEquals(Event.Share, event)
+            latch.countDown()
+        }
+
+        val shareText = "text for share\n" + "http://test.url"
+        val shareIntent = allOf(
+            hasExtra(equalTo(Intent.EXTRA_TEXT), equalTo(shareText)),
+            not(hasExtra(equalTo(Intent.EXTRA_TITLE), equalTo(anything()))),
+            hasType("text/plain"),
+            hasAction(Intent.ACTION_SEND),
+        )
+        intended(
+            allOf(
+                hasAction(Intent.ACTION_CHOOSER),
+                hasExtra(equalTo(Intent.EXTRA_INTENT), shareIntent),
+            )
+        )
+
+        assertTrue(latch.await(5, TimeUnit.SECONDS))
         server.shutdown()
     }
 }
