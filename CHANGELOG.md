@@ -2,6 +2,12 @@
 
 All notable changes to this library will be documented here.
 
+### [0.5.1](https://github.com/getdreams/dreams-android-sdk/compare/0.5.0...0.5.1) (2021-05-05)
+
+### Bug Fixes
+
+* share dialog intent type and improved unit tests
+
 ### [0.5.0](https://github.com/getdreams/dreams-android-sdk/compare/0.4.2...0.5.0) (2021-04-28)
 
 * Share functionality, that can be triggered using following JS code
