@@ -352,10 +352,10 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }
     }
 
-    fun openShareDialog(text: String?, title: String?, url: String?) {
+    fun openShareDialog(text: String, title: String?, url: String?) {
         val share = Intent.createChooser(Intent().apply {
             action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, Html.fromHtml(text + "<br/>" + url))
+            putExtra(Intent.EXTRA_TEXT,  if (url.isNullOrEmpty()) { text } else { "$text\n$url" })
 
             if (title != null) {
                 putExtra(Intent.EXTRA_TITLE, title)

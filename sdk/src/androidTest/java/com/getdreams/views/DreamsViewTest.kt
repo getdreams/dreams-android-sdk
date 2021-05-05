@@ -327,7 +327,7 @@ class DreamsViewTest {
 
         assertTrue(latch.await(5, TimeUnit.SECONDS))
 
-        val shareText = Html.fromHtml("text for share<br/>http://test.url", Html.FROM_HTML_MODE_LEGACY)
+        val shareText = "text for share\n" + "http://test.url"
         val shareIntent = allOf(
             hasExtra(equalTo(Intent.EXTRA_TEXT), equalTo(shareText)),
             hasExtra(equalTo(Intent.EXTRA_TITLE), equalTo("testTitle")),
@@ -356,7 +356,7 @@ class DreamsViewTest {
             latch.countDown()
         }
 
-        val shareText = Html.fromHtml("text for share<br/>http://test.url", Html.FROM_HTML_MODE_LEGACY)
+        val shareText = "text for share\n" + "http://test.url"
         val shareIntent = allOf(
             hasExtra(equalTo(Intent.EXTRA_TEXT), equalTo(shareText)),
             not(hasExtra(equalTo(Intent.EXTRA_TITLE), equalTo(anything()))),
