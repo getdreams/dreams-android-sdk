@@ -7,7 +7,7 @@ apply plugin: 'signing'
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "30.0.3"
+    buildToolsVersion "31.0.0"
 
     defaultConfig {
         minSdkVersion 21
@@ -44,24 +44,23 @@ android {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2'
-    implementation 'androidx.core:core-ktx:1.3.2'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.core:core-ktx:1.6.0'
+    implementation 'androidx.appcompat:appcompat:1.3.1'
 
     testImplementation 'junit:junit:4.13.1'
-    testImplementation 'androidx.test:core:1.3.0'
-    testImplementation 'androidx.test:runner:1.3.0'
-    testImplementation 'androidx.test.ext:junit:1.1.2'
-    testImplementation 'org.robolectric:robolectric:4.5-beta-1'
+    testImplementation 'androidx.test:core:1.4.0'
+    testImplementation 'androidx.test:runner:1.4.0'
+    testImplementation 'androidx.test.ext:junit:1.1.3'
+    testImplementation 'org.robolectric:robolectric:4.6.1'
 
-    androidTestImplementation 'androidx.test:core-ktx:1.3.0'
-    androidTestImplementation 'androidx.test:runner:1.3.0'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-web:3.3.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.3.0'
+    androidTestImplementation 'androidx.test:core-ktx:1.4.0'
+    androidTestImplementation 'androidx.test:runner:1.4.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-web:3.4.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
     androidTestImplementation 'com.squareup.okhttp3:mockwebserver:4.9.0'
-    //noinspection GradleDependency 1.10.5 does not work on api 30 emulators https://github.com/mockk/mockk/issues/519
-    androidTestImplementation 'io.mockk:mockk-android:1.10.0'
+    androidTestImplementation 'io.mockk:mockk-android:1.12.0'
 }
 
 tasks.findAll { it.name.contains("dokka") }.forEach {
