@@ -11,13 +11,12 @@ import com.getdreams.Credentials
 import java.util.Locale
 import com.getdreams.Result
 
-
 /**
  * Interface for requests to the Dreams web app.
  */
 interface RequestInterface {
     /**
-     * Functional interface for recieving the result of a launch call.
+     * Functional interface for receiving the result of a launch call.
      */
     fun interface OnLaunchCompletion {
         /**
