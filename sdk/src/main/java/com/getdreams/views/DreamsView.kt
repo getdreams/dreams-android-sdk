@@ -198,15 +198,17 @@ class DreamsView : FrameLayout, DreamsViewInterface {
      */
     private fun verifyTokenRequest(
         uri: Uri,
-        jsonBody: JSONObject
+        jsonBody: JSONObject,
+        location: String?,
     ): Result<InitResponse, LaunchError> {
-        val url = URL(
-            uri.buildUpon()
-                .appendPath("users")
-                .appendPath("verify_token")
-                .build()
-                .toString()
-        )
+        val uriBuilder = uri.buildUpon()
+            .appendPath("users")
+            .appendPath("verify_token")
+        if (!location.isNullOrEmpty()) {
+            uriBuilder.appendQueryParameter("location", location)
+        }
+
+        val url = URL(uriBuilder.build().toString())
         val connection = try {
             url.openConnection() as? HttpURLConnection? ?: throw NullPointerException("Connection was null")
         } catch (e: Exception) {
@@ -270,7 +272,8 @@ class DreamsView : FrameLayout, DreamsViewInterface {
     private suspend fun initializeWebApp(
         clientId: String,
         idToken: String,
-        localeIdentifier: String
+        localeIdentifier: String,
+        location: String?,
     ): Result<String, LaunchError> {
         val jsonBody = JSONObject()
             .put("client_id", clientId)
@@ -279,7 +282,8 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         val result = withContext(Dispatchers.IO) {
             verifyTokenRequest(
                 Dreams.instance.baseUri,
-                jsonBody
+                jsonBody,
+                location,
             )
         }
         return when (result) {
@@ -306,7 +310,26 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         val languageTag = locale.toLanguageTag()
 
         GlobalScope.launch {
-            when (val result = initializeWebApp(Dreams.instance.clientId, credentials.idToken, languageTag)) {
+            when (val result =
+                initializeWebApp(Dreams.instance.clientId, credentials.idToken, languageTag, location = null)) {
+                is Result.Success -> {
+                    withContext(Dispatchers.Main) {
+                        webView.loadUrl(result.value)
+                    }
+                    onCompletion.onResult(success(Unit))
+                }
+                is Result.Failure -> {
+                    onCompletion.onResult(failure(result.error))
+                }
+            }
+        }
+    }
+
+    override fun launch(credentials: Credentials, locale: Locale, location: String, onCompletion: OnLaunchCompletion) {
+        val languageTag = locale.toLanguageTag()
+
+        GlobalScope.launch {
+            when (val result = initializeWebApp(Dreams.instance.clientId, credentials.idToken, languageTag, location)) {
                 is Result.Success -> {
                     withContext(Dispatchers.Main) {
                         webView.loadUrl(result.value)

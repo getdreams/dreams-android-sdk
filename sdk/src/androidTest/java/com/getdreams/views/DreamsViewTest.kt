@@ -62,7 +62,8 @@ class DreamsViewTest {
     class MockDreamsDispatcher(private val server: MockWebServer) : Dispatcher() {
         override fun dispatch(request: RecordedRequest): MockResponse {
             return when (request.path) {
-                "/users/verify_token" -> MockResponse()
+                "/users/verify_token",
+                "/users/verify_token?location=fake_location" -> MockResponse()
                     .setResponseCode(302)
                     .addHeader("Location", server.url("/index").toString())
                 "/index" -> MockResponse()
@@ -86,6 +87,58 @@ class DreamsViewTest {
 
     @Test
     fun launch() {
+        val server = MockWebServer()
+        server.dispatcher = MockDreamsDispatcher(server)
+        server.start()
+        Dreams.configure(Dreams.Configuration("clientId", server.url("/").toString()))
+
+        val latch = CountDownLatch(1)
+
+        val launchCompletion = LaunchCompletionWithLatch()
+        val onLaunchCompletion = spyk(launchCompletion)
+
+        activityRule.scenario.onActivity {
+            val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
+            dreamsView.launch(
+                Credentials("id token"),
+                locale = Locale.CANADA_FRENCH,
+                location = "fake_location",
+                onLaunchCompletion
+            )
+            dreamsView.registerEventListener { event ->
+                when (event) {
+                    is Event.Telemetry -> {
+                        if ("content_loaded" == event.name) {
+                            latch.countDown()
+                        }
+                    }
+                    else -> {
+                    }
+                }
+            }
+        }
+        assertTrue(latch.await(5, TimeUnit.SECONDS))
+
+        val initPost = server.takeRequest()
+        assertEquals("/users/verify_token?location=fake_location", initPost.path)
+        assertEquals("POST", initPost.method)
+        assertEquals("application/json; utf-8", initPost.getHeader("Content-Type"))
+        assertEquals("application/json", initPost.getHeader("Accept"))
+        val expectedBody = """{"client_id":"clientId","token":"id token","locale":"fr-CA"}"""
+        assertEquals(expectedBody, initPost.body.readUtf8())
+
+        assertTrue(launchCompletion.latch.await(5, TimeUnit.SECONDS))
+        verify { onLaunchCompletion.onResult(Result.success(Unit)) }
+        confirmVerified(onLaunchCompletion)
+
+        val urlLoad = server.takeRequest()
+        assertEquals("/index", urlLoad.path)
+        assertEquals("GET", urlLoad.method)
+        server.shutdown()
+    }
+
+    @Test
+    fun launchWithoutLocation() {
         val server = MockWebServer()
         server.dispatcher = MockDreamsDispatcher(server)
         server.start()
