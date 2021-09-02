@@ -374,6 +374,16 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         }
     }
 
+    override fun navigateTo(location: String) {
+        val jsonData: JSONObject = JSONObject()
+            .put("location", location)
+        GlobalScope.launch(Dispatchers.Main.immediate) {
+            webView.evaluateJavascript("navigateTo('${jsonData}')") {
+                Log.v("Dreams", "navigateTo returned $it")
+            }
+        }
+    }
+
     fun openShareDialog(text: String, title: String?, url: String?) {
         val share = Intent.createChooser(Intent().apply {
             action = Intent.ACTION_SEND

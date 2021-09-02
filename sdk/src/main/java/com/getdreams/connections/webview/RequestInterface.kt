@@ -82,4 +82,11 @@ interface RequestInterface {
      * @param requestId The request id of the event that triggered the account provisioning.
      */
     fun accountProvisionInitiated(requestId: String)
+
+    /**
+     * Instruct the web app to navigate to a [location].
+     *
+     * @param location Where to navigate to.
+     */
+    fun navigateTo(location: String)
 }
