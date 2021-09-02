@@ -41,8 +41,13 @@
     function provisionAccount() {
         JSBridge.onAccountProvisionRequested(JSON.stringify({ requestId: "uuid" }));
     }
-     function share(jsonStr) {
-        JSBridge.onShare(JSON.stringify(jsonStr));
+    function share(json) {
+        JSBridge.onShare(JSON.stringify(json));
+    }
+    function navigateTo(data) {
+        var obj = JSON.parse(data);
+        console.assert(obj.hasOwnProperty('location'), 'missing location');
+        return obj.hasOwnProperty('location');
     }
     </script>
 </head>
@@ -54,6 +59,5 @@
 <button id="provision_account_button" onclick="provisionAccount()">provision account</button>
 <button id="share_button" onclick="share({text: 'text for share' , url:'http://test.url', title : 'testTitle'})">share</button>
 <button id="share_button_null" onclick="share({text: 'text for share' , url:'http://test.url'})">share title null</button>
-
 </body>
 </html>

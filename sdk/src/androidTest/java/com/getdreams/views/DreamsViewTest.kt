@@ -426,4 +426,39 @@ class DreamsViewTest {
         assertTrue(latch.await(5, TimeUnit.SECONDS))
         server.shutdown()
     }
+
+    @Test
+    fun navigateTo() {
+        val server = MockWebServer()
+        server.dispatcher = MockDreamsDispatcher(server)
+        server.start()
+        Dreams.configure(Dreams.Configuration("clientId", server.url("/").toString()))
+
+        val latch = CountDownLatch(1)
+        activityRule.scenario.onActivity {
+            val dreamsView = it.findViewById<DreamsView>(R.id.dreams)
+            dreamsView.launch(Credentials("token"), Locale.ROOT)
+            dreamsView.registerEventListener { event ->
+                when (event) {
+                    is Event.Telemetry -> {
+                        if ("content_loaded" == event.name) {
+                            dreamsView.navigateTo("500 miles away")
+                            GlobalScope.launch {
+                                delay(250)
+                                latch.countDown()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        assertTrue(latch.await(5, TimeUnit.SECONDS))
+        val open = server.takeRequest()
+        assertEquals("/users/verify_token", open.path)
+        assertEquals("POST", open.method)
+        val urlLoad = server.takeRequest()
+        assertEquals("/index", urlLoad.path)
+        assertEquals("GET", urlLoad.method)
+        server.shutdown()
+    }
 }
