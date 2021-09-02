@@ -117,6 +117,22 @@ The easiest way to achieve this is to flag the activity as `adjustResize`.
     android:windowSoftInputMode="adjustResize"/>
 ```
 
+### Location
+
+If you want to launch dreams at a specific location you need to send a `location` to `DreamsView.launch`.
+
+```kotlin
+val dreamsView: DreamsView = findViewById<DreamsView>(R.id.dreams)
+dreamsView.launch(Dreams.Credentials(idToken = "user token"), Locale.ENGLISH, location = "/path/to/location") { _ -> }
+```
+
+When the dreams view is already active the `DreamsView.navigateTo()` function can be used instead.
+
+```kotlin
+val dreamsView: DreamsView = findViewById<DreamsView>(R.id.dreams)
+dreamsView.navigateTo(location = "/path/to/location")
+```
+
 ### Events
 
 In order to listen for events from Dreams you need to register a listener on the DreamsView.
