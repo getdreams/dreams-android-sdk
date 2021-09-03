@@ -6,6 +6,7 @@
 
 package com.getdreams.example
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -15,6 +16,7 @@ import com.getdreams.Credentials
 import com.getdreams.Result
 import com.getdreams.connections.EventListener
 import com.getdreams.connections.webview.LaunchError
+import com.getdreams.connections.webview.RequestInterface
 import com.getdreams.events.Event
 import com.getdreams.views.DreamsView
 import kotlinx.coroutines.Dispatchers
@@ -80,7 +82,7 @@ class MainActivity : AppCompatActivity() {
             .setMessage("Loading Dreams...")
             .show()
 
-        dreamsView.launch(Credentials("token"), Locale.ENGLISH) { result ->
+        val onLaunch = RequestInterface.OnLaunchCompletion { result ->
             when (result) {
                 is Result.Success -> {
                     // Dreams was launched, dismiss loading indicator
@@ -104,6 +106,14 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        val location = intent?.data?.path
+        if (location.isNullOrBlank()) {
+            dreamsView.launch(Credentials("token"), Locale.ENGLISH, onLaunch)
+        } else {
+            dreamsView.launch(Credentials("token"), Locale.ENGLISH, location, onLaunch)
+        }
+
         dreamsView.registerEventListener(listener)
     }
 
@@ -111,6 +121,16 @@ class MainActivity : AppCompatActivity() {
         // As we are about to be destroyed we no longer need to listen for events from Dreams.
         dreamsView.removeEventListener(listener)
         super.onDestroy()
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        if (intent == null) return
+        setIntent(intent)
+        val location = intent.data?.path
+        if (!location.isNullOrBlank()) {
+            dreamsView.navigateTo(location)
+        }
     }
 
     override fun onBackPressed() {
