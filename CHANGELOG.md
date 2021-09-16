@@ -2,6 +2,14 @@
 
 All notable changes to this library will be documented here.
 
+## [0.6.0](https://github.com/getdreams/dreams-android-sdk/compare/0.5.1...0.6.0) (2021-09-16)
+
+
+### Features
+
+* add navigate to function to dreams view ([beac472](https://github.com/getdreams/dreams-android-sdk/commit/beac47293fe43074d99753e8367e4fb65d565147))
+* allow launch to specify what location to open ([5f0318f](https://github.com/getdreams/dreams-android-sdk/commit/5f0318f06b23087a660c0fb7c84ac2e1caa8d40d))
+
 ### [0.5.1](https://github.com/getdreams/dreams-android-sdk/compare/0.5.0...0.5.1) (2021-05-05)
 
 ### Bug Fixes
