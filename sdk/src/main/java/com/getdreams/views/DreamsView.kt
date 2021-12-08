@@ -15,6 +15,8 @@ import android.util.AttributeSet
 import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
@@ -76,6 +78,10 @@ class DreamsView : FrameLayout, DreamsViewInterface {
     private val webView: WebView
     private val responseListeners = CopyOnWriteArrayList<EventListener>()
 
+    // upload photo part
+    private var filePathCallback: ValueCallback<Array<Uri>>? = null
+    var onShowFileChooser: (() -> Unit)? = null
+
     /**
      * Add and setup the web view.
      */
@@ -118,6 +124,14 @@ class DreamsView : FrameLayout, DreamsViewInterface {
         webView.webViewClient = object : WebViewClient() {
             override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
                 return null
+            }
+        }
+
+        webView.webChromeClient = object : WebChromeClient() {
+            override fun onShowFileChooser(webView: WebView?, filePathCallback: ValueCallback<Array<Uri>>?, fileChooserParams: FileChooserParams?): Boolean {
+                this@DreamsView.filePathCallback = filePathCallback
+                onShowFileChooser?.invoke()
+                return true
             }
         }
 
@@ -403,6 +417,10 @@ class DreamsView : FrameLayout, DreamsViewInterface {
 
         }, null)
         context.startActivity(share)
+    }
+
+    fun onFileSelected(uri: Uri) {
+        this.filePathCallback?.onReceiveValue(arrayOf(uri))
     }
 
     override fun registerEventListener(listener: EventListener): Boolean {
