@@ -164,6 +164,21 @@ class DreamsView : FrameLayout, DreamsViewInterface {
             }
 
             @JavascriptInterface
+            override fun onAccountRequested(requestData: String, dream: String) {
+                try {
+                    val json = JSONTokener(requestData).nextValue() as? JSONObject?
+                    val dreamJson =  JSONTokener(dream).nextValue() as JSONObject
+
+                    val requestId = json?.getString("requestId")
+                    if (requestId != null) {
+                        this@DreamsView.onResponse(Event.AccountRequested(requestId, dreamJson))
+                    }
+                } catch (e: JSONException) {
+                    Log.w("Dreams", "Unable to parse request data", e)
+                }
+            }
+
+            @JavascriptInterface
             override fun onExitRequested() {
                 this@DreamsView.onResponse(Event.ExitRequested)
             }

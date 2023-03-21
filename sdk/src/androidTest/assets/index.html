@@ -44,6 +44,9 @@
     function share(json) {
         JSBridge.onShare(JSON.stringify(json));
     }
+    function accountRequested() {
+        JSBridge.onAccountRequested(JSON.stringify({ requestId: "uuid" }));
+    }
     function navigateTo(data) {
         var obj = JSON.parse(data);
         console.assert(obj.hasOwnProperty('location'), 'missing location');
@@ -57,6 +60,7 @@
 <button id="exit_button" onclick="exit()">exit</button>
 <button id="expire_token_button" onclick="expireToken()">expire id token</button>
 <button id="provision_account_button" onclick="provisionAccount()">provision account</button>
+<button id="request_account_button" onclick="accountRequested()">request account</button>
 <button id="share_button" onclick="share({text: 'text for share' , url:'http://test.url', title : 'testTitle'})">share</button>
 <button id="share_button_null" onclick="share({text: 'text for share' , url:'http://test.url'})">share title null</button>
 </body>

@@ -36,4 +36,10 @@ sealed class Event {
      * Event sent when share should be triggered in Dreams.
      */
     object Share : Event()
+
+    /**
+     * Event informing that an account is requested.
+     */
+    data class AccountRequested(override val requestId: String, val dream: JSONObject) :  RequestData, Event()
+
 }
